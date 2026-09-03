@@ -52,11 +52,6 @@ def dashboard():
         status="Resolved"
     ).count()
 
-    print(
-        "DASHBOARD TOTAL BUGS:",
-        total_bugs
-    )
-
     return render_template(
         "dashboard.html",
         bugs=bugs,
@@ -88,23 +83,12 @@ def create_bug():
             "priority"
         )
 
-        print(
-            "CREATING BUG..."
-        )
-
-        print(
-            "CURRENT USER ID:",
-            current_user.id
-        )
-
-
         new_bug = Bug(
             title=title,
             description=description,
             priority=priority,
             user_id=current_user.id
         )
-
 
         try:
 
@@ -114,32 +98,10 @@ def create_bug():
 
             db.session.commit()
 
-
-            print(
-                "BUG SAVED SUCCESSFULLY"
-            )
-
-            print(
-                "BUG ID:",
-                new_bug.id
-            )
-
-            print(
-                "BUG USER ID:",
-                new_bug.user_id
-            )
-
-            print(
-                "TOTAL BUGS AFTER SAVE:",
-                Bug.query.count()
-            )
-
-
             flash(
                 "Bug reported successfully!",
                 "success"
             )
-
 
             return redirect(
                 url_for(
@@ -147,23 +109,14 @@ def create_bug():
                 )
             )
 
-
-        except Exception as error:
+        except Exception:
 
             db.session.rollback()
-
-
-            print(
-                "ERROR SAVING BUG:",
-                str(error)
-            )
-
 
             flash(
                 "Error saving bug. Please try again.",
                 "error"
             )
-
 
             return redirect(
                 url_for(
@@ -203,7 +156,6 @@ def edit_bug(bug_id):
         bug_id
     )
 
-
     if bug.user_id != current_user.id:
 
         abort(
@@ -229,15 +181,12 @@ def edit_bug(bug_id):
             "status"
         )
 
-
         db.session.commit()
-
 
         flash(
             "Bug updated successfully!",
             "success"
         )
-
 
         return redirect(
             url_for(
@@ -264,13 +213,11 @@ def delete_bug(bug_id):
         bug_id
     )
 
-
     if bug.user_id != current_user.id:
 
         abort(
             403
         )
-
 
     db.session.delete(
         bug
@@ -278,12 +225,10 @@ def delete_bug(bug_id):
 
     db.session.commit()
 
-
     flash(
         "Bug deleted successfully!",
         "success"
     )
-
 
     return redirect(
         url_for(
