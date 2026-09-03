@@ -1,5 +1,6 @@
 import json
 import os
+import hashlib
 
 from dotenv import load_dotenv
 from groq import Groq
@@ -16,12 +17,25 @@ def analyze_code(code, language):
         ""
     ).strip()
 
+    # Create a safe fingerprint of the key.
+    # This does NOT reveal the actual API key.
+    key_fingerprint = (
+        hashlib.sha256(
+            api_key.encode()
+        ).hexdigest()[:12]
+        if api_key
+        else "NO_KEY"
+    )
+
     # Safe debugging information
-    # This DOES NOT print the actual API key
     print("Groq API key found:", bool(api_key))
     print(
         "Groq API key length:",
         len(api_key) if api_key else 0
+    )
+    print(
+        "Groq API key fingerprint:",
+        key_fingerprint
     )
 
     # Check whether the API key exists
@@ -33,7 +47,12 @@ def analyze_code(code, language):
             "error": (
                 "GROQ_API_KEY was not found. "
                 "Check the environment variables."
-            )
+            ),
+            "debug": {
+                "key_loaded": False,
+                "key_length": 0,
+                "key_fingerprint": "NO_KEY"
+            }
         }
 
     try:
@@ -107,12 +126,20 @@ Source Code:
 
     except json.JSONDecodeError as error:
 
-        print("JSON parsing error:", str(error))
+        print(
+            "JSON parsing error:",
+            str(error)
+        )
 
         return {
             "summary": "AI returned an invalid response format.",
             "issues": [],
-            "error": str(error)
+            "error": str(error),
+            "debug": {
+                "key_loaded": True,
+                "key_length": len(api_key),
+                "key_fingerprint": key_fingerprint
+            }
         }
 
 
@@ -127,5 +154,10 @@ Source Code:
         return {
             "summary": "Analysis failed.",
             "issues": [],
-            "error": str(error)
+            "error": str(error),
+            "debug": {
+                "key_loaded": True,
+                "key_length": len(api_key),
+                "key_fingerprint": key_fingerprint
+            }
         }
