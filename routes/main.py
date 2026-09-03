@@ -5,8 +5,7 @@ from flask import (
     redirect,
     url_for,
     abort,
-    flash,
-    jsonify
+    flash
 )
 
 from flask_login import (
@@ -24,10 +23,6 @@ main = Blueprint(
 )
 
 
-# ==========================================
-# HOME
-# ==========================================
-
 @main.route("/")
 def home():
 
@@ -35,26 +30,6 @@ def home():
         "index.html"
     )
 
-
-# ==========================================
-# DEBUG DATABASE
-# ==========================================
-
-@main.route("/debug-db")
-def debug_database():
-
-    database_url = db.engine.url
-
-    return jsonify({
-        "database_type": db.engine.dialect.name,
-        "database_host": database_url.host,
-        "database_name": database_url.database
-    })
-
-
-# ==========================================
-# DASHBOARD
-# ==========================================
 
 @main.route("/dashboard")
 def dashboard():
@@ -77,6 +52,11 @@ def dashboard():
         status="Resolved"
     ).count()
 
+    print(
+        "DASHBOARD TOTAL BUGS:",
+        total_bugs
+    )
+
     return render_template(
         "dashboard.html",
         bugs=bugs,
@@ -86,10 +66,6 @@ def dashboard():
         resolved_bugs=resolved_bugs
     )
 
-
-# ==========================================
-# CREATE BUG
-# ==========================================
 
 @main.route(
     "/create-bug",
@@ -112,33 +88,88 @@ def create_bug():
             "priority"
         )
 
+        print(
+            "CREATING BUG..."
+        )
+
+        print(
+            "CURRENT USER ID:",
+            current_user.id
+        )
+
 
         new_bug = Bug(
-
             title=title,
-
             description=description,
-
             priority=priority,
-
             user_id=current_user.id
         )
 
 
-        db.session.add(new_bug)
+        try:
 
-        db.session.commit()
+            db.session.add(
+                new_bug
+            )
 
-
-        flash(
-            "Bug reported successfully!",
-            "success"
-        )
+            db.session.commit()
 
 
-        return redirect(
-            url_for("main.dashboard")
-        )
+            print(
+                "BUG SAVED SUCCESSFULLY"
+            )
+
+            print(
+                "BUG ID:",
+                new_bug.id
+            )
+
+            print(
+                "BUG USER ID:",
+                new_bug.user_id
+            )
+
+            print(
+                "TOTAL BUGS AFTER SAVE:",
+                Bug.query.count()
+            )
+
+
+            flash(
+                "Bug reported successfully!",
+                "success"
+            )
+
+
+            return redirect(
+                url_for(
+                    "main.dashboard"
+                )
+            )
+
+
+        except Exception as error:
+
+            db.session.rollback()
+
+
+            print(
+                "ERROR SAVING BUG:",
+                str(error)
+            )
+
+
+            flash(
+                "Error saving bug. Please try again.",
+                "error"
+            )
+
+
+            return redirect(
+                url_for(
+                    "main.create_bug"
+                )
+            )
 
 
     return render_template(
@@ -146,27 +177,20 @@ def create_bug():
     )
 
 
-# ==========================================
-# BUG DETAILS
-# ==========================================
-
-@main.route("/bug/<int:bug_id>")
+@main.route(
+    "/bug/<int:bug_id>"
+)
 def bug_details(bug_id):
 
     bug = Bug.query.get_or_404(
         bug_id
     )
 
-
     return render_template(
         "bug_details.html",
         bug=bug
     )
 
-
-# ==========================================
-# EDIT BUG
-# ==========================================
 
 @main.route(
     "/bug/<int:bug_id>/edit",
@@ -182,7 +206,9 @@ def edit_bug(bug_id):
 
     if bug.user_id != current_user.id:
 
-        abort(403)
+        abort(
+            403
+        )
 
 
     if request.method == "POST":
@@ -227,10 +253,6 @@ def edit_bug(bug_id):
     )
 
 
-# ==========================================
-# DELETE BUG
-# ==========================================
-
 @main.route(
     "/bug/<int:bug_id>/delete",
     methods=["POST"]
@@ -245,10 +267,14 @@ def delete_bug(bug_id):
 
     if bug.user_id != current_user.id:
 
-        abort(403)
+        abort(
+            403
+        )
 
 
-    db.session.delete(bug)
+    db.session.delete(
+        bug
+    )
 
     db.session.commit()
 
@@ -260,5 +286,7 @@ def delete_bug(bug_id):
 
 
     return redirect(
-        url_for("main.dashboard")
+        url_for(
+            "main.dashboard"
+        )
     )
