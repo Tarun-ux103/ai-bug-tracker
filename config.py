@@ -12,12 +12,21 @@ class Config:
         "development-secret-key"
     )
 
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DATABASE_URL",
-        "sqlite:///bug_tracker.db"
-    )
+
+    if os.getenv("VERCEL"):
+
+        SQLALCHEMY_DATABASE_URI = "sqlite:////tmp/bug_tracker.db"
+
+    else:
+
+        SQLALCHEMY_DATABASE_URI = os.getenv(
+            "DATABASE_URL",
+            "sqlite:///bug_tracker.db"
+        )
+
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 
     GROQ_API_KEY = os.getenv(
         "GROQ_API_KEY"
