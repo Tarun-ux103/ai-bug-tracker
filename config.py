@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 
@@ -12,21 +11,12 @@ class Config:
         "development-secret-key"
     )
 
-
-    if os.getenv("VERCEL"):
-
-        SQLALCHEMY_DATABASE_URI = "sqlite:////tmp/bug_tracker.db"
-
-    else:
-
-        SQLALCHEMY_DATABASE_URI = os.getenv(
-            "DATABASE_URL",
-            "sqlite:///bug_tracker.db"
-        )
-
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "DATABASE_URL",
+        "sqlite:////tmp/bug_tracker.db"
+    )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
 
     GROQ_API_KEY = os.getenv(
         "GROQ_API_KEY"
