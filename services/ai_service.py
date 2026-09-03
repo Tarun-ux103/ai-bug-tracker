@@ -10,9 +10,21 @@ load_dotenv()
 
 def analyze_code(code, language):
 
-    api_key = os.getenv("GROQ_API_KEY")
+    # Get the API key and remove accidental spaces
+    api_key = os.getenv(
+        "GROQ_API_KEY",
+        ""
+    ).strip()
 
+    # Safe debugging information
+    # This DOES NOT print the actual API key
+    print("Groq API key found:", bool(api_key))
+    print(
+        "Groq API key length:",
+        len(api_key) if api_key else 0
+    )
 
+    # Check whether the API key exists
     if not api_key:
 
         return {
@@ -20,17 +32,16 @@ def analyze_code(code, language):
             "issues": [],
             "error": (
                 "GROQ_API_KEY was not found. "
-                "Check your .env file."
+                "Check the environment variables."
             )
         }
 
-
     try:
 
+        # Create Groq client
         client = Groq(
             api_key=api_key
         )
-
 
         prompt = f"""
 You are an expert software engineer and AI code reviewer.
@@ -63,7 +74,7 @@ Source Code:
 {code}
 """
 
-
+        # Send request to Groq
         response = client.chat.completions.create(
 
             model="openai/gpt-oss-20b",
@@ -85,13 +96,33 @@ Source Code:
             temperature=0.2
         )
 
-
+        # Get AI response
         result = response.choices[0].message.content
 
+        print("Groq API request successful.")
+
+        # Convert JSON response into Python dictionary
         return json.loads(result)
 
 
+    except json.JSONDecodeError as error:
+
+        print("JSON parsing error:", str(error))
+
+        return {
+            "summary": "AI returned an invalid response format.",
+            "issues": [],
+            "error": str(error)
+        }
+
+
     except Exception as error:
+
+        print(
+            "Groq API error:",
+            type(error).__name__,
+            str(error)
+        )
 
         return {
             "summary": "Analysis failed.",
