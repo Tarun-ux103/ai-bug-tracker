@@ -1,9 +1,7 @@
 import os
-
 from dotenv import load_dotenv
 
 
-# Load environment variables from .env during local development
 load_dotenv()
 
 
@@ -12,11 +10,11 @@ BASE_DIR = os.path.abspath(
 )
 
 
-# Get environment variables
 database_url = os.getenv(
     "DATABASE_URL",
     ""
 ).strip()
+
 
 secret_key = os.getenv(
     "SECRET_KEY",
@@ -24,13 +22,24 @@ secret_key = os.getenv(
 ).strip()
 
 
-# Safe diagnostics
-# These do NOT reveal actual secret values
+if database_url:
+
+    # Some PostgreSQL providers use postgres://
+    # SQLAlchemy prefers postgresql://
+    if database_url.startswith("postgres://"):
+
+        database_url = database_url.replace(
+            "postgres://",
+            "postgresql://",
+            1
+        )
+
 
 print(
     "DATABASE_URL found:",
     bool(database_url)
 )
+
 
 print(
     "Database type:",
@@ -39,18 +48,12 @@ print(
         1
     )[0]
     if database_url
-    else "SQLite fallback"
-)
-
-print(
-    "SECRET_KEY found:",
-    bool(secret_key)
+    else "NO DATABASE URL"
 )
 
 
 class Config:
 
-    # Secret key
     SECRET_KEY = (
         secret_key
         if secret_key
@@ -58,25 +61,12 @@ class Config:
     )
 
 
-    # Database configuration
-
-    # Use Neon PostgreSQL when DATABASE_URL exists.
-    # Use SQLite only for local development.
-
-    SQLALCHEMY_DATABASE_URI = (
-        database_url
-        if database_url
-        else f"sqlite:///{os.path.join(
-            BASE_DIR,
-            'bug_tracker.db'
-        )}"
-    )
+    # Use DATABASE_URL from Neon/Vercel
+    SQLALCHEMY_DATABASE_URI = database_url
 
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-
-    # Groq API key
 
     GROQ_API_KEY = os.getenv(
         "GROQ_API_KEY",
