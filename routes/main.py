@@ -1,5 +1,3 @@
-import os
-
 from flask import (
     Blueprint,
     render_template,
@@ -7,7 +5,8 @@ from flask import (
     redirect,
     url_for,
     abort,
-    flash
+    flash,
+    jsonify
 )
 
 from flask_login import (
@@ -25,6 +24,10 @@ main = Blueprint(
 )
 
 
+# ==========================================
+# HOME
+# ==========================================
+
 @main.route("/")
 def home():
 
@@ -33,43 +36,28 @@ def home():
     )
 
 
+# ==========================================
+# DEBUG DATABASE
+# ==========================================
+
+@main.route("/debug-db")
+def debug_database():
+
+    database_url = db.engine.url
+
+    return jsonify({
+        "database_type": db.engine.dialect.name,
+        "database_host": database_url.host,
+        "database_name": database_url.database
+    })
+
+
+# ==========================================
+# DASHBOARD
+# ==========================================
+
 @main.route("/dashboard")
 def dashboard():
-
-    # Temporary Vercel diagnostics
-    # These do NOT reveal your actual secrets
-
-    database_url = os.getenv(
-        "DATABASE_URL",
-        ""
-    ).strip()
-
-    secret_key = os.getenv(
-        "SECRET_KEY",
-        ""
-    ).strip()
-
-    print(
-        "DASHBOARD DATABASE_URL FOUND:",
-        bool(database_url)
-    )
-
-    print(
-        "DASHBOARD DATABASE TYPE:",
-        database_url.split(
-            ":",
-            1
-        )[0]
-        if database_url
-        else "SQLITE FALLBACK"
-    )
-
-    print(
-        "DASHBOARD SECRET_KEY FOUND:",
-        bool(secret_key)
-    )
-
-    # Database queries
 
     bugs = Bug.query.order_by(
         Bug.created_at.desc()
@@ -99,6 +87,10 @@ def dashboard():
     )
 
 
+# ==========================================
+# CREATE BUG
+# ==========================================
+
 @main.route(
     "/create-bug",
     methods=["GET", "POST"]
@@ -120,30 +112,43 @@ def create_bug():
             "priority"
         )
 
+
         new_bug = Bug(
+
             title=title,
+
             description=description,
+
             priority=priority,
+
             user_id=current_user.id
         )
+
 
         db.session.add(new_bug)
 
         db.session.commit()
+
 
         flash(
             "Bug reported successfully!",
             "success"
         )
 
+
         return redirect(
             url_for("main.dashboard")
         )
+
 
     return render_template(
         "create_bug.html"
     )
 
+
+# ==========================================
+# BUG DETAILS
+# ==========================================
 
 @main.route("/bug/<int:bug_id>")
 def bug_details(bug_id):
@@ -152,11 +157,16 @@ def bug_details(bug_id):
         bug_id
     )
 
+
     return render_template(
         "bug_details.html",
         bug=bug
     )
 
+
+# ==========================================
+# EDIT BUG
+# ==========================================
 
 @main.route(
     "/bug/<int:bug_id>/edit",
@@ -169,9 +179,11 @@ def edit_bug(bug_id):
         bug_id
     )
 
+
     if bug.user_id != current_user.id:
 
         abort(403)
+
 
     if request.method == "POST":
 
@@ -191,12 +203,15 @@ def edit_bug(bug_id):
             "status"
         )
 
+
         db.session.commit()
+
 
         flash(
             "Bug updated successfully!",
             "success"
         )
+
 
         return redirect(
             url_for(
@@ -205,11 +220,16 @@ def edit_bug(bug_id):
             )
         )
 
+
     return render_template(
         "edit_bug.html",
         bug=bug
     )
 
+
+# ==========================================
+# DELETE BUG
+# ==========================================
 
 @main.route(
     "/bug/<int:bug_id>/delete",
@@ -222,18 +242,22 @@ def delete_bug(bug_id):
         bug_id
     )
 
+
     if bug.user_id != current_user.id:
 
         abort(403)
+
 
     db.session.delete(bug)
 
     db.session.commit()
 
+
     flash(
         "Bug deleted successfully!",
         "success"
     )
+
 
     return redirect(
         url_for("main.dashboard")
