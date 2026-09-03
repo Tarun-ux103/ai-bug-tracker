@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+
+{% block page_title %}
+AI Code Analyzer
+{% endblock %}
+
+
+{% block content %}
+
+<div class="analyzer-header">
+
+    <div>
+
+        <div class="hero-badge">
+            ✦ Generative AI + LLM
+        </div>
+
+        <h1>Analyze your code with AI</h1>
+
+        <p>
+            Paste your source code and let the AI identify
+            potential bugs, security issues, logical errors,
+            and possible improvements.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="analyzer-container">
+
+    <form
+        method="POST"
+        class="analyzer-form"
+    >
+
+        <div class="form-group">
+
+            <label>
+                Programming Language
+            </label>
+
+
+            <select
+                name="language"
+                class="form-select"
+            >
+
+                <option value="Python">
+                    Python
+                </option>
+
+                <option value="Java">
+                    Java
+                </option>
+
+                <option value="JavaScript">
+                    JavaScript
+                </option>
+
+                <option value="C++">
+                    C++
+                </option>
+
+                <option value="C">
+                    C
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Source Code
+            </label>
+
+
+            <textarea
+                name="code"
+                class="code-input"
+                placeholder="Paste your source code here..."
+                required
+            ></textarea>
+
+        </div>
+
+
+        <button
+            type="submit"
+            class="btn-primary-custom"
+        >
+            ✦ Analyze with AI
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}

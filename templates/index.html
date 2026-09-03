@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+
+{% block page_title %}
+Welcome
+{% endblock %}
+
+
+{% block content %}
+
+<div class="welcome-page">
+
+    <div class="hero-content">
+
+        <div class="hero-badge">
+            ✦ Powered by Generative AI
+        </div>
+
+
+        <h1>
+
+            Track bugs smarter.
+
+            <span>
+                Resolve them faster.
+            </span>
+
+        </h1>
+
+
+        <p>
+
+            BugMind AI combines intelligent issue management
+            with AI-powered insights to help development teams
+            identify, understand, and resolve bugs efficiently.
+
+        </p>
+
+
+        <div class="hero-buttons">
+
+            <a
+                href="{{ url_for('main.dashboard') }}"
+                class="btn-primary-custom"
+            >
+                Go to Dashboard
+                <span>→</span>
+            </a>
+
+
+            <a
+                href="{{ url_for('main.create_bug') }}"
+                class="btn-secondary-custom"
+            >
+                + Report an Issue
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="hero-card">
+
+        <div class="ai-card-header">
+
+            <div class="ai-icon">
+                ✦
+            </div>
+
+            <div>
+
+                <span>AI INSIGHT</span>
+
+                <h5>Smart Bug Analysis</h5>
+
+            </div>
+
+        </div>
+
+
+        <div class="analysis-item">
+
+            <span class="analysis-label">
+                SEVERITY
+            </span>
+
+            <strong class="severity-high">
+                High
+            </strong>
+
+        </div>
+
+
+        <div class="analysis-item">
+
+            <span class="analysis-label">
+                AI CONFIDENCE
+            </span>
+
+            <strong>
+                94%
+            </strong>
+
+        </div>
+
+
+        <div class="ai-suggestion">
+
+            <span>✦</span>
+
+            <p>
+
+                AI can analyze bug reports,
+                suggest possible causes, and help
+                developers find solutions.
+
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,1 @@
+console.log("BugMind AI is running successfully!");

@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}
+AI Analysis Results
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+
+    <div class="page-header">
+
+        <h1>AI Analysis Results</h1>
+
+        <p>
+            Potential problems identified by the AI.
+        </p>
+
+    </div>
+
+
+    {% if analysis.error %}
+
+        <div class="alert alert-danger">
+
+            <strong>AI Analysis Failed:</strong>
+
+            {{ analysis.error }}
+
+        </div>
+
+    {% else %}
+
+
+        <!-- Analysis Summary -->
+
+        <div class="analysis-summary">
+
+            <h2>Analysis Summary</h2>
+
+            <p>
+
+                {{ analysis.summary }}
+
+            </p>
+
+        </div>
+
+
+        <!-- Issues -->
+
+        <h2 class="issues-heading">
+
+            Issues Found
+
+        </h2>
+
+
+        {% if analysis.issues %}
+
+
+            {% for issue in analysis.issues %}
+
+            <div class="issue-card">
+
+
+                <!-- Header -->
+
+                <div class="issue-header">
+
+
+                    <div>
+
+                        <span class="issue-type">
+
+                            {{ issue.type }}
+
+                        </span>
+
+
+                        <h3>
+
+                            {{ issue.title }}
+
+                        </h3>
+
+                    </div>
+
+
+                    <span class="severity severity-{{ issue.severity|lower }}">
+
+                        {{ issue.severity }}
+
+                    </span>
+
+
+                </div>
+
+
+                <!-- Description -->
+
+                <div class="issue-content">
+
+
+                    <h4>
+
+                        DESCRIPTION
+
+                    </h4>
+
+
+                    <p>
+
+                        {{ issue.description }}
+
+                    </p>
+
+
+                </div>
+
+
+                <!-- Suggested Fix -->
+
+                <div class="issue-content">
+
+
+                    <h4>
+
+                        SUGGESTED FIX
+
+                    </h4>
+
+
+                    <div class="suggested-fix">
+
+                        ✦ {{ issue.suggested_fix }}
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- Save as Bug -->
+
+                <div class="save-ai-bug">
+
+
+                    {% if current_user.is_authenticated %}
+
+
+                    <form
+                        action="{{ url_for('analyzer.save_ai_bug') }}"
+                        method="POST"
+                    >
+
+
+                        <input
+                            type="hidden"
+                            name="title"
+                            value="{{ issue.title }}"
+                        >
+
+
+                        <input
+                            type="hidden"
+                            name="issue_type"
+                            value="{{ issue.type }}"
+                        >
+
+
+                        <input
+                            type="hidden"
+                            name="severity"
+                            value="{{ issue.severity }}"
+                        >
+
+
+                        <input
+                            type="hidden"
+                            name="description"
+                            value="{{ issue.description }}"
+                        >
+
+
+                        <input
+                            type="hidden"
+                            name="suggested_fix"
+                            value="{{ issue.suggested_fix }}"
+                        >
+
+
+                        <button
+                            type="submit"
+                            class="save-bug-btn"
+                        >
+
+                            🐛 Save as Bug
+
+                        </button>
+
+
+                    </form>
+
+
+                    {% else %}
+
+
+                    <a
+                        href="{{ url_for('main.login') }}"
+                        class="login-save-btn"
+                    >
+
+                        Login to Save as Bug
+
+                    </a>
+
+
+                    {% endif %}
+
+
+                </div>
+
+
+            </div>
+
+            {% endfor %}
+
+
+        {% else %}
+
+
+            <div class="no-issues">
+
+                <h3>
+
+                    🎉 No major issues found!
+
+                </h3>
+
+
+                <p>
+
+                    The AI did not identify any significant problems in the submitted code.
+
+                </p>
+
+
+            </div>
+
+
+        {% endif %}
+
+
+    {% endif %}
+
+
+    <!-- Back Button -->
+
+    <div class="analysis-actions">
+
+
+        <a
+            href="{{ url_for('analyzer.analyze') }}"
+            class="btn"
+        >
+
+            ← Analyze Another Code
+
+        </a>
+
+
+    </div>
+
+
+</div>
+
+{% endblock %}

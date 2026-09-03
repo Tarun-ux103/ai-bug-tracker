@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+
+{% block page_title %}
+Dashboard
+{% endblock %}
+
+
+{% block content %}
+
+<div class="dashboard-header">
+
+    <div>
+
+        <h1>
+            Welcome back 👋
+        </h1>
+
+        <p>
+            Here's what's happening with your issues today.
+        </p>
+
+    </div>
+
+
+    <a
+        href="{{ url_for('main.create_bug') }}"
+        class="btn-primary-custom"
+    >
+        + Report New Bug
+    </a>
+
+</div>
+
+
+<div class="stats-grid">
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon purple">
+            ▦
+        </div>
+
+
+        <div>
+
+            <span>Total Issues</span>
+
+            <h2>
+                {{ total_bugs }}
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon orange">
+            !
+        </div>
+
+
+        <div>
+
+            <span>Open Issues</span>
+
+            <h2>
+                {{ open_bugs }}
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon blue">
+            ◷
+        </div>
+
+
+        <div>
+
+            <span>In Progress</span>
+
+            <h2>
+                {{ in_progress_bugs }}
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon green">
+            ✓
+        </div>
+
+
+        <div>
+
+            <span>Resolved</span>
+
+            <h2>
+                {{ resolved_bugs }}
+            </h2>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="section-header">
+
+    <div>
+
+        <h3>
+            Recent Issues
+        </h3>
+
+        <p>
+            Your latest reported bugs and issues.
+        </p>
+
+    </div>
+
+</div>
+
+
+{% if bugs %}
+
+<div class="issues-container">
+
+    {% for bug in bugs %}
+
+    <div class="issue-card">
+
+        <div class="issue-main">
+
+            <div class="issue-id">
+
+                #{{ bug.id }}
+
+            </div>
+
+
+            <div class="issue-info">
+
+                <h4>
+                    {{ bug.title }}
+                </h4>
+
+
+                <p>
+
+                    {{ bug.description[:120] }}
+
+                    {% if bug.description|length > 120 %}
+                    ...
+                    {% endif %}
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="issue-meta">
+
+            <span
+                class="priority priority-{{ bug.priority|lower }}"
+            >
+                {{ bug.priority }}
+            </span>
+
+
+            <span
+                class="status status-{{ bug.status|lower|replace(' ', '-') }}"
+            >
+                {{ bug.status }}
+            </span>
+
+
+            <a
+                href="{{ url_for('main.bug_details', bug_id=bug.id) }}"
+                class="view-button"
+            >
+                View →
+            </a>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+
+{% else %}
+
+<div class="empty-state">
+
+    <div class="empty-icon">
+        🐛
+    </div>
+
+
+    <h3>
+        No issues yet
+    </h3>
+
+
+    <p>
+        Start tracking your software issues by reporting your first bug.
+    </p>
+
+
+    <a
+        href="{{ url_for('main.create_bug') }}"
+        class="btn-primary-custom"
+    >
+        + Report Your First Bug
+    </a>
+
+</div>
+
+{% endif %}
+
+{% endblock %}

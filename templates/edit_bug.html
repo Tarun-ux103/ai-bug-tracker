@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-md-8">
+
+        <div class="card shadow-sm">
+
+            <div class="card-body p-4">
+
+                <h2 class="mb-4">
+
+                    Edit Bug #{{ bug.id }}
+
+                </h2>
+
+
+                <form method="POST">
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Bug Title
+
+                        </label>
+
+
+                        <input
+                            type="text"
+                            name="title"
+                            value="{{ bug.title }}"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Description
+
+                        </label>
+
+
+                        <textarea
+                            name="description"
+                            class="form-control"
+                            rows="6"
+                            required
+                        >{{ bug.description }}</textarea>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Priority
+
+                        </label>
+
+
+                        <select
+                            name="priority"
+                            class="form-select"
+                        >
+
+
+                            <option
+                                value="Low"
+                                {% if bug.priority == "Low" %}
+                                selected
+                                {% endif %}
+                            >
+                                Low
+                            </option>
+
+
+                            <option
+                                value="Medium"
+                                {% if bug.priority == "Medium" %}
+                                selected
+                                {% endif %}
+                            >
+                                Medium
+                            </option>
+
+
+                            <option
+                                value="High"
+                                {% if bug.priority == "High" %}
+                                selected
+                                {% endif %}
+                            >
+                                High
+                            </option>
+
+
+                            <option
+                                value="Critical"
+                                {% if bug.priority == "Critical" %}
+                                selected
+                                {% endif %}
+                            >
+                                Critical
+                            </option>
+
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label class="form-label">
+
+                            Status
+
+                        </label>
+
+
+                        <select
+                            name="status"
+                            class="form-select"
+                        >
+
+
+                            <option
+                                value="Open"
+                                {% if bug.status == "Open" %}
+                                selected
+                                {% endif %}
+                            >
+                                Open
+                            </option>
+
+
+                            <option
+                                value="In Progress"
+                                {% if bug.status == "In Progress" %}
+                                selected
+                                {% endif %}
+                            >
+                                In Progress
+                            </option>
+
+
+                            <option
+                                value="Resolved"
+                                {% if bug.status == "Resolved" %}
+                                selected
+                                {% endif %}
+                            >
+                                Resolved
+                            </option>
+
+
+                            <option
+                                value="Closed"
+                                {% if bug.status == "Closed" %}
+                                selected
+                                {% endif %}
+                            >
+                                Closed
+                            </option>
+
+
+                        </select>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Save Changes
+                    </button>
+
+
+                    <a
+                        href="{{ url_for('main.bug_details', bug_id=bug.id) }}"
+                        class="btn btn-secondary"
+                    >
+                        Cancel
+                    </a>
+
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
