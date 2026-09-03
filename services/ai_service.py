@@ -6,41 +6,31 @@ from dotenv import load_dotenv
 from groq import Groq
 
 
-# Load variables from .env when running locally
 load_dotenv()
 
 
 def analyze_code(code, language):
 
-    # Get API key from environment variables
-    # .strip() removes accidental spaces or newlines
-    api_key = os.getenv(
-        "GROQ_API_KEY",
-        ""
-    ).strip()
+    # Get API key
+    api_key = os.getenv("GROQ_API_KEY", "").strip()
 
-    # Safe debugging information
-    # The actual API key is NEVER printed
+    # Safe diagnostics
     print("Groq API key found:", bool(api_key))
-    print(
-        "Groq API key length:",
-        len(api_key)
-    )
+    print("Groq API key length:", len(api_key))
 
-    # Create a safe fingerprint to compare
-    # the local key with the Vercel key
     if api_key:
-
-        key_fingerprint = hashlib.sha256(
+        # Generate a safe fingerprint
+        # This does NOT reveal the API key
+        key_hash = hashlib.sha256(
             api_key.encode()
-        ).hexdigest()[:12]
+        ).hexdigest()
 
         print(
             "Groq API key fingerprint:",
-            key_fingerprint
+            key_hash[:12]
         )
 
-    # Check whether API key exists
+    # Check if key exists
     if not api_key:
 
         return {
@@ -48,7 +38,7 @@ def analyze_code(code, language):
             "issues": [],
             "error": (
                 "GROQ_API_KEY was not found. "
-                "Check your environment variables."
+                "Check the environment variables."
             )
         }
 
@@ -59,7 +49,6 @@ def analyze_code(code, language):
             api_key=api_key
         )
 
-        # AI prompt
         prompt = f"""
 You are an expert software engineer and AI code reviewer.
 
@@ -91,7 +80,6 @@ Source Code:
 {code}
 """
 
-        # Send request to Groq API
         response = client.chat.completions.create(
 
             model="openai/gpt-oss-20b",
@@ -113,15 +101,10 @@ Source Code:
             temperature=0.2
         )
 
-        # Get the AI response
         result = response.choices[0].message.content
 
         print("Groq API request successful.")
 
-        # Remove accidental whitespace
-        result = result.strip()
-
-        # Convert JSON response to Python dictionary
         return json.loads(result)
 
     except json.JSONDecodeError as error:
@@ -132,7 +115,9 @@ Source Code:
         )
 
         return {
-            "summary": "AI returned an invalid response format.",
+            "summary": (
+                "AI returned an invalid response format."
+            ),
             "issues": [],
             "error": str(error)
         }
