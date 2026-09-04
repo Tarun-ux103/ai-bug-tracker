@@ -110,10 +110,12 @@ def analyze():
 
             db.session.rollback()
 
+
             flash(
                 "Unable to save the analysis report.",
                 "error"
             )
+
 
             return redirect(
                 url_for(
@@ -216,6 +218,103 @@ def analysis_results(report_id):
 
 
 @analyzer_bp.route(
+    "/analysis/<int:report_id>/original-code"
+)
+@login_required
+def view_original_code(report_id):
+
+    report = db.session.get(
+        AnalysisReport,
+        report_id
+    )
+
+
+    if not report:
+
+        flash(
+            "Analysis report not found.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "main.dashboard"
+            )
+        )
+
+
+    if report.user_id != current_user.id:
+
+        flash(
+            "You are not authorized to view this code.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "main.dashboard"
+            )
+        )
+
+
+    return render_template(
+
+        "original_code.html",
+
+        report=report
+
+    )
+
+
+@analyzer_bp.route(
+    "/analysis/<int:report_id>/issues"
+)
+@login_required
+def view_all_issues(report_id):
+
+    report = db.session.get(
+        AnalysisReport,
+        report_id
+    )
+
+
+    if not report:
+
+        flash(
+            "Analysis report not found.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "main.dashboard"
+            )
+        )
+
+
+    if report.user_id != current_user.id:
+
+        flash(
+            "You are not authorized to view these issues.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "main.dashboard"
+            )
+        )
+
+
+    return redirect(
+        url_for(
+            "analyzer.analysis_results",
+            report_id=report.id
+        )
+    )
+
+
+@analyzer_bp.route(
     "/save-ai-bug",
     methods=["POST"]
 )
@@ -266,6 +365,7 @@ def save_ai_bug():
         analysis_report_id = int(
             analysis_report_id
         )
+
 
     except ValueError:
 
