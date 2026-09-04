@@ -37,14 +37,12 @@ def analyze():
     if request.method == "POST":
 
         code = request.form.get(
-            "code",
-            ""
-        ).strip()
+            "code"
+        )
 
         language = request.form.get(
-            "language",
-            ""
-        ).strip()
+            "language"
+        )
 
 
         if not code:
@@ -61,24 +59,22 @@ def analyze():
             )
 
 
-        # Send code to AI service
         analysis = analyze_code(
             code,
             language
         )
 
 
-        # If AI analysis failed
         if analysis.get("error"):
 
             return render_template(
                 "analysis_result.html",
                 analysis=analysis,
-                report=None
+                report=None,
+                saved_bug_titles=[]
             )
 
 
-        # Create a new analysis report
         report = AnalysisReport(
 
             title="Code Analysis",
@@ -103,7 +99,6 @@ def analyze():
 
         try:
 
-            # Save report
             db.session.add(
                 report
             )
@@ -115,12 +110,10 @@ def analyze():
 
             db.session.rollback()
 
-
             flash(
                 "Unable to save the analysis report.",
                 "error"
             )
-
 
             return redirect(
                 url_for(
@@ -129,7 +122,6 @@ def analyze():
             )
 
 
-        # Go to permanent report page
         return redirect(
             url_for(
                 "analyzer.analysis_results",
@@ -169,7 +161,6 @@ def analysis_results(report_id):
         )
 
 
-    # Security check
     if report.user_id != current_user.id:
 
         flash(
@@ -193,61 +184,34 @@ def analysis_results(report_id):
     }
 
 
+    saved_bugs = Bug.query.filter_by(
+
+        analysis_report_id=report.id,
+
+        user_id=current_user.id
+
+    ).all()
+
+
+    saved_bug_titles = [
+
+        bug.title
+
+        for bug in saved_bugs
+
+    ]
+
+
     return render_template(
+
         "analysis_result.html",
 
         analysis=analysis,
 
-        report=report
-    )
+        report=report,
 
+        saved_bug_titles=saved_bug_titles
 
-@analyzer_bp.route(
-    "/analysis-code/<int:report_id>"
-)
-@login_required
-def view_original_code(report_id):
-
-    # Get the analysis report
-    report = db.session.get(
-        AnalysisReport,
-        report_id
-    )
-
-
-    if not report:
-
-        flash(
-            "Analysis report not found.",
-            "error"
-        )
-
-        return redirect(
-            url_for(
-                "main.dashboard"
-            )
-        )
-
-
-    # Security check
-    if report.user_id != current_user.id:
-
-        flash(
-            "You are not authorized to view this report.",
-            "error"
-        )
-
-        return redirect(
-            url_for(
-                "main.dashboard"
-            )
-        )
-
-
-    # Display original analyzed code
-    return render_template(
-        "original_code.html",
-        report=report
     )
 
 
@@ -299,11 +263,9 @@ def save_ai_bug():
 
     try:
 
-        # Convert report ID to integer
         analysis_report_id = int(
             analysis_report_id
         )
-
 
     except ValueError:
 
@@ -319,10 +281,12 @@ def save_ai_bug():
         )
 
 
-    # Find the report
     report = db.session.get(
+
         AnalysisReport,
+
         analysis_report_id
+
     )
 
 
@@ -340,7 +304,6 @@ def save_ai_bug():
         )
 
 
-    # Security check
     if report.user_id != current_user.id:
 
         flash(
@@ -351,6 +314,35 @@ def save_ai_bug():
         return redirect(
             url_for(
                 "main.dashboard"
+            )
+        )
+
+
+    existing_bug = Bug.query.filter_by(
+
+        title=title,
+
+        analysis_report_id=analysis_report_id,
+
+        user_id=current_user.id
+
+    ).first()
+
+
+    if existing_bug:
+
+        flash(
+            "This AI issue has already been saved as a bug.",
+            "info"
+        )
+
+        return redirect(
+            url_for(
+
+                "analyzer.analysis_results",
+
+                report_id=analysis_report_id
+
             )
         )
 
@@ -369,7 +361,6 @@ Suggested Fix:
 """
 
 
-    # Create bug
     bug = Bug(
 
         title=title,
@@ -381,6 +372,7 @@ Suggested Fix:
         user_id=current_user.id,
 
         analysis_report_id=analysis_report_id
+
     )
 
 
@@ -410,10 +402,12 @@ Suggested Fix:
         )
 
 
-    # Return to the same analysis results page
     return redirect(
         url_for(
+
             "analyzer.analysis_results",
+
             report_id=analysis_report_id
+
         )
     )

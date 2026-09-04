@@ -13,7 +13,9 @@ AI Analysis Results
 
     <div class="page-header">
 
-        <h1>AI Analysis Results</h1>
+        <h1>
+            AI Analysis Results
+        </h1>
 
         <p>
             Potential problems identified by the AI.
@@ -23,6 +25,7 @@ AI Analysis Results
 
 
     {% if analysis.error %}
+
 
         <div class="alert alert-danger">
 
@@ -57,7 +60,8 @@ AI Analysis Results
 
         <h2 class="issues-heading">
 
-            Issues Found
+            Issues Found:
+            {{ analysis.issues|length }}
 
         </h2>
 
@@ -141,7 +145,7 @@ AI Analysis Results
                 </div>
 
 
-                <!-- Save as Bug -->
+                <!-- Save Bug Section -->
 
                 <div class="save-ai-bug">
 
@@ -149,77 +153,97 @@ AI Analysis Results
                     {% if current_user.is_authenticated and report %}
 
 
-                    <form
-                        action="{{ url_for('analyzer.save_ai_bug') }}"
-                        method="POST"
-                    >
+                        {% if issue.title in saved_bug_titles %}
 
 
-                        <!-- Analysis Report ID -->
+                            <button
+                                type="button"
+                                class="save-bug-btn"
+                                disabled
+                            >
 
-                        <input
-                            type="hidden"
-                            name="analysis_report_id"
-                            value="{{ report.id }}"
-                        >
+                                ✓ Saved as Bug
 
-
-                        <!-- Issue Title -->
-
-                        <input
-                            type="hidden"
-                            name="title"
-                            value="{{ issue.title }}"
-                        >
+                            </button>
 
 
-                        <!-- Issue Type -->
-
-                        <input
-                            type="hidden"
-                            name="issue_type"
-                            value="{{ issue.type }}"
-                        >
+                        {% else %}
 
 
-                        <!-- Severity -->
-
-                        <input
-                            type="hidden"
-                            name="severity"
-                            value="{{ issue.severity }}"
-                        >
+                            <form
+                                action="{{ url_for('analyzer.save_ai_bug') }}"
+                                method="POST"
+                            >
 
 
-                        <!-- Description -->
+                                <!-- Analysis Report ID -->
 
-                        <input
-                            type="hidden"
-                            name="description"
-                            value="{{ issue.description }}"
-                        >
-
-
-                        <!-- Suggested Fix -->
-
-                        <input
-                            type="hidden"
-                            name="suggested_fix"
-                            value="{{ issue.suggested_fix }}"
-                        >
+                                <input
+                                    type="hidden"
+                                    name="analysis_report_id"
+                                    value="{{ report.id }}"
+                                >
 
 
-                        <button
-                            type="submit"
-                            class="save-bug-btn"
-                        >
+                                <!-- Issue Title -->
 
-                            🐛 Save as Bug
+                                <input
+                                    type="hidden"
+                                    name="title"
+                                    value="{{ issue.title }}"
+                                >
 
-                        </button>
+
+                                <!-- Issue Type -->
+
+                                <input
+                                    type="hidden"
+                                    name="issue_type"
+                                    value="{{ issue.type }}"
+                                >
 
 
-                    </form>
+                                <!-- Severity -->
+
+                                <input
+                                    type="hidden"
+                                    name="severity"
+                                    value="{{ issue.severity }}"
+                                >
+
+
+                                <!-- Description -->
+
+                                <input
+                                    type="hidden"
+                                    name="description"
+                                    value="{{ issue.description }}"
+                                >
+
+
+                                <!-- Suggested Fix -->
+
+                                <input
+                                    type="hidden"
+                                    name="suggested_fix"
+                                    value="{{ issue.suggested_fix }}"
+                                >
+
+
+                                <button
+                                    type="submit"
+                                    class="save-bug-btn"
+                                >
+
+                                    🐛 Save as Bug
+
+                                </button>
+
+
+                            </form>
+
+
+                        {% endif %}
 
 
                     {% endif %}
@@ -260,7 +284,7 @@ AI Analysis Results
     {% endif %}
 
 
-    <!-- Back Button -->
+    <!-- Navigation Buttons -->
 
     <div class="analysis-actions">
 
