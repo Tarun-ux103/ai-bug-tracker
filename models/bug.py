@@ -46,6 +46,12 @@ class Bug(db.Model):
     )
 
 
+    analysis_report_id = db.Column(
+        db.Integer,
+        db.ForeignKey("analysis_reports.id"),
+        nullable=True
+    )
+
     # User who owns this bug
     user_id = db.Column(
         db.Integer,
