@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 
 
+{% block title %}
+Bug Details
+{% endblock %}
+
+
 {% block content %}
 
 <div class="row justify-content-center">
@@ -8,11 +13,15 @@
     <div class="col-lg-9">
 
 
+        <!-- Page Header -->
+
         <div
-            class="d-flex
+            class="
+            d-flex
             justify-content-between
             align-items-center
-            mb-4"
+            mb-4
+            "
         >
 
             <div>
@@ -36,16 +45,22 @@
                 href="{{ url_for('main.dashboard') }}"
                 class="btn btn-secondary"
             >
+
                 ← Back to Dashboard
+
             </a>
 
         </div>
 
 
+        <!-- Bug Details Card -->
+
         <div class="card shadow-sm">
 
             <div class="card-body p-4">
 
+
+                <!-- Description -->
 
                 <div class="mb-4">
 
@@ -54,7 +69,7 @@
                     </h5>
 
 
-                    <p>
+                    <p style="white-space: pre-line;">
 
                         {{ bug.description }}
 
@@ -62,6 +77,8 @@
 
                 </div>
 
+
+                <!-- Bug Information -->
 
                 <div class="row">
 
@@ -107,7 +124,9 @@
 
                         <p>
 
-                            {{ bug.created_at.strftime('%d %b %Y') }}
+                            {{ bug.created_at.strftime(
+                                '%d %b %Y, %I:%M %p'
+                            ) }}
 
                         </p>
 
@@ -120,28 +139,44 @@
                 <hr>
 
 
+                <!-- Edit and Delete -->
+
                 <div class="d-flex gap-2">
 
 
                     <a
-                        href="{{ url_for('main.edit_bug', bug_id=bug.id) }}"
+                        href="{{ url_for(
+                            'main.edit_bug',
+                            bug_id=bug.id
+                        ) }}"
                         class="btn btn-warning"
                     >
+
                         Edit Bug
+
                     </a>
 
 
                     <form
-                        action="{{ url_for('main.delete_bug', bug_id=bug.id) }}"
+                        action="{{ url_for(
+                            'main.delete_bug',
+                            bug_id=bug.id
+                        ) }}"
                         method="POST"
-                        onsubmit="return confirm('Are you sure you want to delete this bug?');"
+                        onsubmit="
+                            return confirm(
+                                'Are you sure you want to delete this bug?'
+                            );
+                        "
                     >
 
                         <button
                             type="submit"
                             class="btn btn-danger"
                         >
+
                             Delete Bug
+
                         </button>
 
                     </form>
@@ -152,6 +187,156 @@
             </div>
 
         </div>
+
+
+        <!-- Related AI Analysis Report -->
+
+        {% if bug.analysis_report %}
+
+
+        <div class="card shadow-sm mt-4">
+
+            <div class="card-body p-4">
+
+
+                <div
+                    class="
+                    d-flex
+                    justify-content-between
+                    align-items-center
+                    mb-4
+                    "
+                >
+
+                    <h3>
+
+                        🤖 Related AI Analysis
+
+                    </h3>
+
+
+                    <span class="badge bg-info text-dark">
+
+                        Analysis Report
+                        #{{ bug.analysis_report.id }}
+
+                    </span>
+
+                </div>
+
+
+                <!-- Report Title -->
+
+                <div class="mb-4">
+
+                    <h5>
+                        Analysis Title
+                    </h5>
+
+
+                    <p>
+
+                        {{ bug.analysis_report.title }}
+
+                    </p>
+
+                </div>
+
+
+                <!-- Programming Language -->
+
+                <div class="mb-4">
+
+                    <h5>
+                        Programming Language
+                    </h5>
+
+
+                    <span class="badge bg-secondary">
+
+                        {{ bug.analysis_report.language }}
+
+                    </span>
+
+                </div>
+
+
+                <!-- AI Summary -->
+
+                <div class="mb-4">
+
+                    <h5>
+                        AI Analysis Summary
+                    </h5>
+
+
+                    <p>
+
+                        {{ bug.analysis_report.summary }}
+
+                    </p>
+
+                </div>
+
+
+                <!-- Original Source Code -->
+
+                <div class="mb-4">
+
+                    <h5>
+                        Original Source Code
+                    </h5>
+
+
+                    <pre
+                        class="bg-dark text-light p-3 rounded"
+                        style="
+                            max-height: 500px;
+                            overflow: auto;
+                            white-space: pre-wrap;
+                        "
+                    ><code>{{ bug.analysis_report.source_code }}</code></pre>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        {% else %}
+
+
+        <!-- No AI Report -->
+
+        <div class="card shadow-sm mt-4">
+
+            <div class="card-body text-center p-4">
+
+
+                <h5>
+
+                    No Related AI Analysis
+
+                </h5>
+
+
+                <p class="text-muted mb-0">
+
+                    This bug was created manually and is not
+                    connected to an AI analysis report.
+
+                </p>
+
+
+            </div>
+
+        </div>
+
+
+        {% endif %}
+
 
     </div>
 

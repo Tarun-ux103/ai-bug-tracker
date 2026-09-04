@@ -33,6 +33,8 @@ Dashboard
 </div>
 
 
+<!-- Statistics -->
+
 <div class="stats-grid">
 
 
@@ -118,6 +120,8 @@ Dashboard
 </div>
 
 
+<!-- Recent Issues -->
+
 <div class="section-header">
 
     <div>
@@ -145,6 +149,9 @@ Dashboard
 
         <div class="issue-main">
 
+
+            <!-- Bug ID -->
+
             <div class="issue-id">
 
                 #{{ bug.id }}
@@ -152,19 +159,39 @@ Dashboard
             </div>
 
 
+            <!-- Bug Information -->
+
             <div class="issue-info">
 
+
+                <!-- Clickable Bug Title -->
+
                 <h4>
-                    {{ bug.title }}
+
+                    <a
+                        href="{{ url_for(
+                            'main.bug_details',
+                            bug_id=bug.id
+                        ) }}"
+                    >
+
+                        {{ bug.title }}
+
+                    </a>
+
                 </h4>
 
+
+                <!-- Bug Description -->
 
                 <p>
 
                     {{ bug.description[:120] }}
 
                     {% if bug.description|length > 120 %}
+
                     ...
+
                     {% endif %}
 
                 </p>
@@ -174,27 +201,45 @@ Dashboard
         </div>
 
 
+        <!-- Bug Meta Information -->
+
         <div class="issue-meta">
+
+
+            <!-- Priority -->
 
             <span
                 class="priority priority-{{ bug.priority|lower }}"
             >
+
                 {{ bug.priority }}
+
             </span>
 
+
+            <!-- Status -->
 
             <span
                 class="status status-{{ bug.status|lower|replace(' ', '-') }}"
             >
+
                 {{ bug.status }}
+
             </span>
 
 
+            <!-- View Details -->
+
             <a
-                href="{{ url_for('main.bug_details', bug_id=bug.id) }}"
+                href="{{ url_for(
+                    'main.bug_details',
+                    bug_id=bug.id
+                ) }}"
                 class="view-button"
             >
+
                 View →
+
             </a>
 
         </div>
@@ -207,6 +252,9 @@ Dashboard
 
 
 {% else %}
+
+
+<!-- Empty State -->
 
 <div class="empty-state">
 
@@ -229,11 +277,15 @@ Dashboard
         href="{{ url_for('main.create_bug') }}"
         class="btn-primary-custom"
     >
+
         + Report Your First Bug
+
     </a>
 
 </div>
 
+
 {% endif %}
+
 
 {% endblock %}
