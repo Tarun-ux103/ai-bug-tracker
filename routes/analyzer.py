@@ -36,9 +36,15 @@ def analyze():
 
     if request.method == "POST":
 
-        code = request.form.get("code")
+        code = request.form.get(
+            "code",
+            ""
+        ).strip()
 
-        language = request.form.get("language")
+        language = request.form.get(
+            "language",
+            ""
+        ).strip()
 
 
         if not code:
@@ -49,7 +55,9 @@ def analyze():
             )
 
             return redirect(
-                url_for("analyzer.analyze")
+                url_for(
+                    "analyzer.analyze"
+                )
             )
 
 
@@ -93,10 +101,32 @@ def analyze():
         )
 
 
-        # Save report
-        db.session.add(report)
+        try:
 
-        db.session.commit()
+            # Save report
+            db.session.add(
+                report
+            )
+
+            db.session.commit()
+
+
+        except Exception:
+
+            db.session.rollback()
+
+
+            flash(
+                "Unable to save the analysis report.",
+                "error"
+            )
+
+
+            return redirect(
+                url_for(
+                    "analyzer.analyze"
+                )
+            )
 
 
         # Go to permanent report page
@@ -133,7 +163,9 @@ def analysis_results(report_id):
         )
 
         return redirect(
-            url_for("analyzer.analyze")
+            url_for(
+                "analyzer.analyze"
+            )
         )
 
 
@@ -146,7 +178,9 @@ def analysis_results(report_id):
         )
 
         return redirect(
-            url_for("main.dashboard")
+            url_for(
+                "main.dashboard"
+            )
         )
 
 
@@ -169,13 +203,64 @@ def analysis_results(report_id):
 
 
 @analyzer_bp.route(
+    "/analysis-code/<int:report_id>"
+)
+@login_required
+def view_original_code(report_id):
+
+    # Get the analysis report
+    report = db.session.get(
+        AnalysisReport,
+        report_id
+    )
+
+
+    if not report:
+
+        flash(
+            "Analysis report not found.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "main.dashboard"
+            )
+        )
+
+
+    # Security check
+    if report.user_id != current_user.id:
+
+        flash(
+            "You are not authorized to view this report.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "main.dashboard"
+            )
+        )
+
+
+    # Display original analyzed code
+    return render_template(
+        "original_code.html",
+        report=report
+    )
+
+
+@analyzer_bp.route(
     "/save-ai-bug",
     methods=["POST"]
 )
 @login_required
 def save_ai_bug():
 
-    title = request.form.get("title")
+    title = request.form.get(
+        "title"
+    )
 
     issue_type = request.form.get(
         "issue_type"
@@ -206,14 +291,32 @@ def save_ai_bug():
         )
 
         return redirect(
-            url_for("analyzer.analyze")
+            url_for(
+                "analyzer.analyze"
+            )
         )
 
 
-    # Convert report ID to integer
-    analysis_report_id = int(
-        analysis_report_id
-    )
+    try:
+
+        # Convert report ID to integer
+        analysis_report_id = int(
+            analysis_report_id
+        )
+
+
+    except ValueError:
+
+        flash(
+            "Invalid analysis report.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "analyzer.analyze"
+            )
+        )
 
 
     # Find the report
@@ -231,7 +334,9 @@ def save_ai_bug():
         )
 
         return redirect(
-            url_for("analyzer.analyze")
+            url_for(
+                "analyzer.analyze"
+            )
         )
 
 
@@ -244,7 +349,9 @@ def save_ai_bug():
         )
 
         return redirect(
-            url_for("main.dashboard")
+            url_for(
+                "main.dashboard"
+            )
         )
 
 
@@ -277,19 +384,33 @@ Suggested Fix:
     )
 
 
-    db.session.add(bug)
+    try:
 
-    db.session.commit()
+        db.session.add(
+            bug
+        )
 
-
-    flash(
-        "AI-detected issue saved successfully as a bug!",
-        "success"
-    )
+        db.session.commit()
 
 
-    # IMPORTANT:
-    # Return to the SAME analysis results page
+        flash(
+            "AI-detected issue saved successfully as a bug!",
+            "success"
+        )
+
+
+    except Exception:
+
+        db.session.rollback()
+
+
+        flash(
+            "Unable to save the AI issue.",
+            "error"
+        )
+
+
+    # Return to the same analysis results page
     return redirect(
         url_for(
             "analyzer.analysis_results",
