@@ -84,7 +84,9 @@ Bug Details
                 <div class="row">
 
 
-                    <div class="col-md-4 mb-3">
+                    <!-- Priority -->
+
+                    <div class="col-md-3 mb-3">
 
                         <h6>
                             Priority
@@ -100,7 +102,9 @@ Bug Details
                     </div>
 
 
-                    <div class="col-md-4 mb-3">
+                    <!-- Status -->
+
+                    <div class="col-md-3 mb-3">
 
                         <h6>
                             Status
@@ -116,7 +120,31 @@ Bug Details
                     </div>
 
 
-                    <div class="col-md-4 mb-3">
+                    <!-- Reported By -->
+
+                    <div class="col-md-3 mb-3">
+
+                        <h6>
+                            Reported By
+                        </h6>
+
+
+                        <p>
+
+                            👤
+
+                            <strong>
+                                {{ bug.creator.username }}
+                            </strong>
+
+                        </p>
+
+                    </div>
+
+
+                    <!-- Created Date -->
+
+                    <div class="col-md-3 mb-3">
 
                         <h6>
                             Created
@@ -296,7 +324,6 @@ Bug Details
 
                     <h5>
                         Original Source Code
-
                     </h5>
 
 

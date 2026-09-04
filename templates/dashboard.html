@@ -331,9 +331,7 @@ Dashboard
         href="{{ url_for('analyzer.analyze') }}"
         class="btn-primary-custom"
     >
-
         Analyze Code
-
     </a>
 
 
@@ -419,6 +417,19 @@ Dashboard
                 </p>
 
 
+                <!-- Bug Reporter -->
+
+                <p class="bug-reporter">
+
+                    👤 Reported by:
+
+                    <strong>
+                        {{ bug.creator.username }}
+                    </strong>
+
+                </p>
+
+
             </div>
 
 
@@ -494,6 +505,7 @@ Dashboard
 
     {% if current_user.is_authenticated %}
 
+
     <a
         href="{{ url_for('main.create_bug') }}"
         class="btn-primary-custom"
@@ -505,6 +517,7 @@ Dashboard
 
 
     {% else %}
+
 
     <a
         href="{{ url_for('auth.login') }}"
