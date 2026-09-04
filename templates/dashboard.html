@@ -14,15 +14,17 @@ Dashboard
     <div>
 
         <h1>
-            Welcome back 👋
+            Bug Dashboard 🐛
         </h1>
 
         <p>
-            Here's what's happening with your issues today.
+            Explore recently reported issues from the community.
         </p>
 
     </div>
 
+
+    {% if current_user.is_authenticated %}
 
     <a
         href="{{ url_for('main.create_bug') }}"
@@ -30,6 +32,17 @@ Dashboard
     >
         + Report New Bug
     </a>
+
+    {% else %}
+
+    <a
+        href="{{ url_for('auth.login') }}"
+        class="btn-primary-custom"
+    >
+        Login to Report a Bug
+    </a>
+
+    {% endif %}
 
 </div>
 
@@ -122,14 +135,17 @@ Dashboard
 </div>
 
 
-<!-- AI Code Analysis Reports -->
+<!-- Private AI Analysis Reports -->
+
+{% if current_user.is_authenticated %}
+
 
 <div class="section-header">
 
     <div>
 
         <h3>
-            Code Analysis Reports
+            My Code Analysis Reports
         </h3>
 
         <p>
@@ -163,8 +179,6 @@ Dashboard
         <div class="analysis-report-content">
 
 
-            <!-- Analysis Title -->
-
             <h3>
 
                 Analysis:
@@ -172,8 +186,6 @@ Dashboard
 
             </h3>
 
-
-            <!-- Programming Language -->
 
             <p>
 
@@ -186,8 +198,6 @@ Dashboard
             </p>
 
 
-            <!-- Total Issues -->
-
             <p>
 
                 <strong>
@@ -198,8 +208,6 @@ Dashboard
 
             </p>
 
-
-            <!-- Severity Counts -->
 
             <div class="severity-summary">
 
@@ -213,9 +221,7 @@ Dashboard
 
 
                 <span class="severity-divider">
-
                     |
-
                 </span>
 
 
@@ -228,9 +234,7 @@ Dashboard
 
 
                 <span class="severity-divider">
-
                     |
-
                 </span>
 
 
@@ -243,9 +247,7 @@ Dashboard
 
 
                 <span class="severity-divider">
-
                     |
-
                 </span>
 
 
@@ -259,8 +261,6 @@ Dashboard
 
             </div>
 
-
-            <!-- Report Actions -->
 
             <div class="analysis-actions">
 
@@ -343,7 +343,10 @@ Dashboard
 {% endif %}
 
 
-<!-- Recent Bugs -->
+{% endif %}
+
+
+<!-- Public Recent Bugs -->
 
 <div class="section-header">
 
@@ -354,7 +357,7 @@ Dashboard
         </h3>
 
         <p>
-            Your latest reported and AI-detected bugs.
+            Recently reported bugs from the community.
         </p>
 
     </div>
@@ -485,9 +488,11 @@ Dashboard
 
 
     <p>
-        Start tracking your software issues by reporting your first bug.
+        Start tracking software issues by reporting the first bug.
     </p>
 
+
+    {% if current_user.is_authenticated %}
 
     <a
         href="{{ url_for('main.create_bug') }}"
@@ -497,6 +502,21 @@ Dashboard
         + Report Your First Bug
 
     </a>
+
+
+    {% else %}
+
+    <a
+        href="{{ url_for('auth.login') }}"
+        class="btn-primary-custom"
+    >
+
+        Login to Report a Bug
+
+    </a>
+
+
+    {% endif %}
 
 
 </div>

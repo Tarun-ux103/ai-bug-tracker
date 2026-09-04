@@ -14,9 +14,7 @@ from flask_login import (
 )
 
 from models import db
-
 from models.bug import Bug
-
 from models.analysis_report import AnalysisReport
 
 
@@ -34,130 +32,107 @@ def home():
     )
 
 
+# Public dashboard
 @main.route("/dashboard")
-@login_required
 def dashboard():
 
-    # Get all bugs belonging to the current user
-    bugs = Bug.query.filter_by(
-        user_id=current_user.id
-    ).order_by(
+    # All bugs are publicly visible
+    bugs = Bug.query.order_by(
         Bug.created_at.desc()
     ).all()
 
 
-    # Get all AI analysis reports belonging to the current user
-    analysis_reports = AnalysisReport.query.filter_by(
-        user_id=current_user.id
-    ).order_by(
-        AnalysisReport.created_at.desc()
-    ).all()
+    # Statistics for all bugs
+    total_bugs = Bug.query.count()
 
 
-    # Total bugs
-    total_bugs = Bug.query.filter_by(
-        user_id=current_user.id
-    ).count()
-
-
-    # Open bugs
     open_bugs = Bug.query.filter_by(
-        user_id=current_user.id,
         status="Open"
     ).count()
 
 
-    # In Progress bugs
     in_progress_bugs = Bug.query.filter_by(
-        user_id=current_user.id,
         status="In Progress"
     ).count()
 
 
-    # Resolved bugs
     resolved_bugs = Bug.query.filter_by(
-        user_id=current_user.id,
         status="Resolved"
     ).count()
 
 
-    # Prepare grouped analysis data
+    # AI reports are private
     grouped_reports = []
 
 
-    for report in analysis_reports:
+    if current_user.is_authenticated:
 
-        # Get all saved bugs related to this report
-        report_bugs = Bug.query.filter_by(
-            analysis_report_id=report.id,
+        analysis_reports = AnalysisReport.query.filter_by(
             user_id=current_user.id
         ).order_by(
-            Bug.created_at.desc()
+            AnalysisReport.created_at.desc()
         ).all()
 
 
-        # Count issues based on the original AI analysis
-        issues = report.issues or []
+        for report in analysis_reports:
+
+            report_bugs = Bug.query.filter_by(
+                analysis_report_id=report.id,
+                user_id=current_user.id
+            ).order_by(
+                Bug.created_at.desc()
+            ).all()
 
 
-        critical_count = 0
-
-        high_count = 0
-
-        medium_count = 0
-
-        low_count = 0
+            issues = report.issues or []
 
 
-        for issue in issues:
-
-            severity = issue.get(
-                "severity",
-                ""
-            ).lower()
+            critical_count = 0
+            high_count = 0
+            medium_count = 0
+            low_count = 0
 
 
-            if severity == "critical":
+            for issue in issues:
 
-                critical_count += 1
-
-
-            elif severity == "high":
-
-                high_count += 1
+                severity = issue.get(
+                    "severity",
+                    ""
+                ).lower()
 
 
-            elif severity == "medium":
+                if severity == "critical":
+                    critical_count += 1
 
-                medium_count += 1
+                elif severity == "high":
+                    high_count += 1
+
+                elif severity == "medium":
+                    medium_count += 1
+
+                elif severity == "low":
+                    low_count += 1
 
 
-            elif severity == "low":
+            grouped_reports.append({
 
-                low_count += 1
+                "report": report,
 
+                "bugs": report_bugs,
 
-        grouped_reports.append({
+                "issues_count": len(issues),
 
-            "report": report,
+                "saved_bugs_count": len(report_bugs),
 
-            "bugs": report_bugs,
+                "critical_count": critical_count,
 
-            # Total AI issues found
-            "issues_count": len(issues),
+                "high_count": high_count,
 
-            # Number of issues saved as bugs
-            "saved_bugs_count": len(report_bugs),
+                "medium_count": medium_count,
 
-            "critical_count": critical_count,
+                "low_count": low_count
 
-            "high_count": high_count,
-
-            "medium_count": medium_count,
-
-            "low_count": low_count
-
-        })
+            })
 
 
     return render_template(
@@ -186,36 +161,24 @@ def create_bug():
 
     if request.method == "POST":
 
-        title = request.form.get(
-            "title"
-        )
+        title = request.form.get("title")
 
-        description = request.form.get(
-            "description"
-        )
+        description = request.form.get("description")
 
-        priority = request.form.get(
-            "priority"
-        )
+        priority = request.form.get("priority")
 
 
         new_bug = Bug(
-
             title=title,
-
             description=description,
-
             priority=priority,
-
             user_id=current_user.id
         )
 
 
         try:
 
-            db.session.add(
-                new_bug
-            )
+            db.session.add(new_bug)
 
             db.session.commit()
 
@@ -227,9 +190,7 @@ def create_bug():
 
 
             return redirect(
-                url_for(
-                    "main.dashboard"
-                )
+                url_for("main.dashboard")
             )
 
 
@@ -245,9 +206,7 @@ def create_bug():
 
 
             return redirect(
-                url_for(
-                    "main.create_bug"
-                )
+                url_for("main.create_bug")
             )
 
 
@@ -256,25 +215,17 @@ def create_bug():
     )
 
 
-@main.route(
-    "/bug/<int:bug_id>"
-)
-@login_required
+# Public bug details
+@main.route("/bug/<int:bug_id>")
 def bug_details(bug_id):
 
-    bug = Bug.query.filter_by(
-
-        id=bug_id,
-
-        user_id=current_user.id
-
-    ).first_or_404()
+    bug = Bug.query.get_or_404(
+        bug_id
+    )
 
 
     return render_template(
-
         "bug_details.html",
-
         bug=bug
     )
 
@@ -291,30 +242,21 @@ def edit_bug(bug_id):
     )
 
 
+    # Only the creator can edit
     if bug.user_id != current_user.id:
 
-        abort(
-            403
-        )
+        abort(403)
 
 
     if request.method == "POST":
 
-        bug.title = request.form.get(
-            "title"
-        )
+        bug.title = request.form.get("title")
 
-        bug.description = request.form.get(
-            "description"
-        )
+        bug.description = request.form.get("description")
 
-        bug.priority = request.form.get(
-            "priority"
-        )
+        bug.priority = request.form.get("priority")
 
-        bug.status = request.form.get(
-            "status"
-        )
+        bug.status = request.form.get("status")
 
 
         db.session.commit()
@@ -335,9 +277,7 @@ def edit_bug(bug_id):
 
 
     return render_template(
-
         "edit_bug.html",
-
         bug=bug
     )
 
@@ -354,16 +294,13 @@ def delete_bug(bug_id):
     )
 
 
+    # Only the creator can delete
     if bug.user_id != current_user.id:
 
-        abort(
-            403
-        )
+        abort(403)
 
 
-    db.session.delete(
-        bug
-    )
+    db.session.delete(bug)
 
     db.session.commit()
 
@@ -375,7 +312,5 @@ def delete_bug(bug_id):
 
 
     return redirect(
-        url_for(
-            "main.dashboard"
-        )
+        url_for("main.dashboard")
     )

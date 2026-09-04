@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 
 
-{% block title %}
+{% block page_title %}
 Bug Details
 {% endblock %}
 
 
 {% block content %}
+
 
 <div class="row justify-content-center">
 
@@ -136,10 +137,14 @@ Bug Details
                 </div>
 
 
+                <!-- Owner-only Actions -->
+
+                {% if current_user.is_authenticated
+                and bug.user_id == current_user.id %}
+
+
                 <hr>
 
-
-                <!-- Edit and Delete -->
 
                 <div class="d-flex gap-2">
 
@@ -184,14 +189,20 @@ Bug Details
 
                 </div>
 
+
+                {% endif %}
+
+
             </div>
 
         </div>
 
 
-        <!-- Related AI Analysis Report -->
+        <!-- Private AI Analysis -->
 
-        {% if bug.analysis_report %}
+        {% if bug.analysis_report
+        and current_user.is_authenticated
+        and bug.user_id == current_user.id %}
 
 
         <div class="card shadow-sm mt-4">
@@ -285,6 +296,7 @@ Bug Details
 
                     <h5>
                         Original Source Code
+
                     </h5>
 
 
@@ -305,41 +317,12 @@ Bug Details
         </div>
 
 
-        {% else %}
-
-
-        <!-- No AI Report -->
-
-        <div class="card shadow-sm mt-4">
-
-            <div class="card-body text-center p-4">
-
-
-                <h5>
-
-                    No Related AI Analysis
-
-                </h5>
-
-
-                <p class="text-muted mb-0">
-
-                    This bug was created manually and is not
-                    connected to an AI analysis report.
-
-                </p>
-
-
-            </div>
-
-        </div>
-
-
         {% endif %}
 
 
     </div>
 
 </div>
+
 
 {% endblock %}
