@@ -32,6 +32,12 @@ class AnalysisReport(db.Model):
         nullable=True
     )
 
+    # Store all AI-detected issues
+    issues = db.Column(
+        db.JSON,
+        nullable=True
+    )
+
     created_at = db.Column(
         db.DateTime,
         default=datetime.utcnow

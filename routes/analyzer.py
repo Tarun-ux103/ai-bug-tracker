@@ -15,7 +15,9 @@ from flask_login import (
 from services.ai_service import analyze_code
 
 from models import db
+
 from models.bug import Bug
+
 from models.analysis_report import AnalysisReport
 
 
@@ -34,15 +36,9 @@ def analyze():
 
     if request.method == "POST":
 
-        code = request.form.get(
-            "code",
-            ""
-        ).strip()
+        code = request.form.get("code")
 
-        language = request.form.get(
-            "language",
-            ""
-        ).strip()
+        language = request.form.get("language")
 
 
         if not code:
@@ -57,31 +53,24 @@ def analyze():
             )
 
 
-        # Analyze the submitted code using AI
+        # Send code to AI service
         analysis = analyze_code(
             code,
             language
         )
 
 
-        # Stop if the AI analysis failed
+        # If AI analysis failed
         if analysis.get("error"):
-
-            flash(
-                "Unable to analyze the code.",
-                "error"
-            )
 
             return render_template(
                 "analysis_result.html",
                 analysis=analysis,
-                language=language,
-                code=code,
-                analysis_report=None
+                report=None
             )
 
 
-        # Create one analysis report automatically
+        # Create a new analysis report
         report = AnalysisReport(
 
             title="Code Analysis",
@@ -95,31 +84,87 @@ def analyze():
                 ""
             ),
 
+            issues=analysis.get(
+                "issues",
+                []
+            ),
+
             user_id=current_user.id
         )
 
 
+        # Save report
         db.session.add(report)
 
         db.session.commit()
 
 
-        # Display the results and keep the report ID
-        return render_template(
-            "analysis_result.html",
-
-            analysis=analysis,
-
-            language=language,
-
-            code=code,
-
-            analysis_report=report
+        # Go to permanent report page
+        return redirect(
+            url_for(
+                "analyzer.analysis_results",
+                report_id=report.id
+            )
         )
 
 
     return render_template(
         "analyzer.html"
+    )
+
+
+@analyzer_bp.route(
+    "/analysis-results/<int:report_id>"
+)
+@login_required
+def analysis_results(report_id):
+
+    report = db.session.get(
+        AnalysisReport,
+        report_id
+    )
+
+
+    if not report:
+
+        flash(
+            "Analysis report not found.",
+            "error"
+        )
+
+        return redirect(
+            url_for("analyzer.analyze")
+        )
+
+
+    # Security check
+    if report.user_id != current_user.id:
+
+        flash(
+            "You are not authorized to view this report.",
+            "error"
+        )
+
+        return redirect(
+            url_for("main.dashboard")
+        )
+
+
+    analysis = {
+
+        "summary": report.summary,
+
+        "issues": report.issues or []
+
+    }
+
+
+    return render_template(
+        "analysis_result.html",
+
+        analysis=analysis,
+
+        report=report
     )
 
 
@@ -130,9 +175,7 @@ def analyze():
 @login_required
 def save_ai_bug():
 
-    title = request.form.get(
-        "title"
-    )
+    title = request.form.get("title")
 
     issue_type = request.form.get(
         "issue_type"
@@ -155,7 +198,7 @@ def save_ai_bug():
     )
 
 
-    if not title:
+    if not title or not analysis_report_id:
 
         flash(
             "Unable to save the AI issue.",
@@ -164,6 +207,44 @@ def save_ai_bug():
 
         return redirect(
             url_for("analyzer.analyze")
+        )
+
+
+    # Convert report ID to integer
+    analysis_report_id = int(
+        analysis_report_id
+    )
+
+
+    # Find the report
+    report = db.session.get(
+        AnalysisReport,
+        analysis_report_id
+    )
+
+
+    if not report:
+
+        flash(
+            "Analysis report not found.",
+            "error"
+        )
+
+        return redirect(
+            url_for("analyzer.analyze")
+        )
+
+
+    # Security check
+    if report.user_id != current_user.id:
+
+        flash(
+            "You are not authorized to modify this report.",
+            "error"
+        )
+
+        return redirect(
+            url_for("main.dashboard")
         )
 
 
@@ -181,6 +262,7 @@ Suggested Fix:
 """
 
 
+    # Create bug
     bug = Bug(
 
         title=title,
@@ -201,11 +283,16 @@ Suggested Fix:
 
 
     flash(
-        "AI-detected issue saved successfully!",
+        "AI-detected issue saved successfully as a bug!",
         "success"
     )
 
 
+    # IMPORTANT:
+    # Return to the SAME analysis results page
     return redirect(
-        url_for("main.dashboard")
+        url_for(
+            "analyzer.analysis_results",
+            report_id=analysis_report_id
+        )
     )

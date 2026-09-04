@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+
 {% block title %}
 AI Analysis Results
 {% endblock %}
@@ -8,6 +9,7 @@ AI Analysis Results
 {% block content %}
 
 <div class="container">
+
 
     <div class="page-header">
 
@@ -24,11 +26,14 @@ AI Analysis Results
 
         <div class="alert alert-danger">
 
-            <strong>AI Analysis Failed:</strong>
+            <strong>
+                AI Analysis Failed:
+            </strong>
 
             {{ analysis.error }}
 
         </div>
+
 
     {% else %}
 
@@ -37,7 +42,9 @@ AI Analysis Results
 
         <div class="analysis-summary">
 
-            <h2>Analysis Summary</h2>
+            <h2>
+                Analysis Summary
+            </h2>
 
             <p>
                 {{ analysis.summary }}
@@ -46,7 +53,7 @@ AI Analysis Results
         </div>
 
 
-        <!-- Issues -->
+        <!-- Issues Heading -->
 
         <h2 class="issues-heading">
 
@@ -60,12 +67,14 @@ AI Analysis Results
 
             {% for issue in analysis.issues %}
 
+
             <div class="issue-card">
 
 
-                <!-- Header -->
+                <!-- Issue Header -->
 
                 <div class="issue-header">
+
 
                     <div>
 
@@ -86,12 +95,16 @@ AI Analysis Results
 
 
                     <span
-                        class="severity severity-{{ issue.severity|lower }}"
+                        class="
+                            severity
+                            severity-{{ issue.severity|lower }}
+                        "
                     >
 
                         {{ issue.severity }}
 
                     </span>
+
 
                 </div>
 
@@ -101,16 +114,11 @@ AI Analysis Results
                 <div class="issue-content">
 
                     <h4>
-
                         DESCRIPTION
-
                     </h4>
 
-
                     <p>
-
                         {{ issue.description }}
-
                     </p>
 
                 </div>
@@ -121,11 +129,8 @@ AI Analysis Results
                 <div class="issue-content">
 
                     <h4>
-
                         SUGGESTED FIX
-
                     </h4>
-
 
                     <div class="suggested-fix">
 
@@ -141,7 +146,7 @@ AI Analysis Results
                 <div class="save-ai-bug">
 
 
-                    {% if current_user.is_authenticated %}
+                    {% if current_user.is_authenticated and report %}
 
 
                     <form
@@ -150,20 +155,16 @@ AI Analysis Results
                     >
 
 
-                        <!-- Connect Bug to Analysis Report -->
-
-                        {% if analysis_report %}
+                        <!-- Analysis Report ID -->
 
                         <input
                             type="hidden"
                             name="analysis_report_id"
-                            value="{{ analysis_report.id }}"
+                            value="{{ report.id }}"
                         >
 
-                        {% endif %}
 
-
-                        <!-- Bug Title -->
+                        <!-- Issue Title -->
 
                         <input
                             type="hidden"
@@ -221,19 +222,6 @@ AI Analysis Results
                     </form>
 
 
-                    {% else %}
-
-
-                    <a
-                        href="{{ url_for('auth.login') }}"
-                        class="login-save-btn"
-                    >
-
-                        Login to Save as Bug
-
-                    </a>
-
-
                     {% endif %}
 
 
@@ -241,6 +229,7 @@ AI Analysis Results
 
 
             </div>
+
 
             {% endfor %}
 
@@ -251,18 +240,16 @@ AI Analysis Results
             <div class="no-issues">
 
                 <h3>
-
                     🎉 No major issues found!
-
                 </h3>
-
 
                 <p>
 
-                    The AI did not identify any significant problems in the submitted code.
+                    The AI did not identify any
+                    significant problems in the
+                    submitted code.
 
                 </p>
-
 
             </div>
 
@@ -284,6 +271,16 @@ AI Analysis Results
         >
 
             ← Analyze Another Code
+
+        </a>
+
+
+        <a
+            href="{{ url_for('main.dashboard') }}"
+            class="btn"
+        >
+
+            Go to Dashboard →
 
         </a>
 
