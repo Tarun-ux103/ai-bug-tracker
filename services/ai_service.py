@@ -1,6 +1,6 @@
 import json
 import os
-import hashlib
+import re
 
 from dotenv import load_dotenv
 from groq import Groq
@@ -9,28 +9,57 @@ from groq import Groq
 load_dotenv()
 
 
+def extract_json(response_text):
+
+    # Remove extra spaces
+    response_text = response_text.strip()
+
+
+    # Remove Markdown code blocks if AI returns them
+    if response_text.startswith("```"):
+
+        response_text = re.sub(
+            r"^```(?:json)?",
+            "",
+            response_text,
+            flags=re.IGNORECASE
+        )
+
+        response_text = re.sub(
+            r"```$",
+            "",
+            response_text.strip()
+        )
+
+
+    # Try to find the JSON object
+    json_start = response_text.find("{")
+
+    json_end = response_text.rfind("}")
+
+
+    if json_start != -1 and json_end != -1:
+
+        response_text = response_text[
+            json_start:json_end + 1
+        ]
+
+
+    return json.loads(
+        response_text
+    )
+
+
 def analyze_code(code, language):
 
     # Get API key
-    api_key = os.getenv("GROQ_API_KEY", "").strip()
+    api_key = os.getenv(
+        "GROQ_API_KEY",
+        ""
+    ).strip()
 
-    # Safe diagnostics
-    print("Groq API key found:", bool(api_key))
-    print("Groq API key length:", len(api_key))
 
-    if api_key:
-        # Generate a safe fingerprint
-        # This does NOT reveal the API key
-        key_hash = hashlib.sha256(
-            api_key.encode()
-        ).hexdigest()
-
-        print(
-            "Groq API key fingerprint:",
-            key_hash[:12]
-        )
-
-    # Check if key exists
+    # Check API key
     if not api_key:
 
         return {
@@ -38,9 +67,10 @@ def analyze_code(code, language):
             "issues": [],
             "error": (
                 "GROQ_API_KEY was not found. "
-                "Check the environment variables."
+                "Check your environment variables."
             )
         }
+
 
     try:
 
@@ -49,14 +79,27 @@ def analyze_code(code, language):
             api_key=api_key
         )
 
+
         prompt = f"""
-You are an expert software engineer and AI code reviewer.
+Analyze the following {language} source code.
 
-Analyze the following {language} source code and identify
-potential bugs, security vulnerabilities, logical errors,
-missing error handling, and performance problems.
+Find potential:
 
-Return ONLY valid JSON.
+- Bugs
+- Security vulnerabilities
+- Logical errors
+- Missing error handling
+- Performance problems
+
+IMPORTANT:
+
+Return ONLY a valid JSON object.
+
+Do not use Markdown.
+
+Do not use ```json.
+
+Do not add explanations before or after the JSON.
 
 Use exactly this structure:
 
@@ -73,12 +116,18 @@ Use exactly this structure:
     ]
 }}
 
-If there are no significant issues, return an empty issues list.
+If there are no significant issues, return:
 
-Source Code:
+{{
+    "summary": "No significant issues found.",
+    "issues": []
+}}
+
+SOURCE CODE:
 
 {code}
 """
+
 
         response = client.chat.completions.create(
 
@@ -88,8 +137,8 @@ Source Code:
                 {
                     "role": "system",
                     "content": (
-                        "You are a precise AI code analyzer. "
-                        "Always return valid JSON only."
+                        "You are a professional AI code analyzer. "
+                        "Your response must be valid JSON only."
                     )
                 },
                 {
@@ -98,14 +147,48 @@ Source Code:
                 }
             ],
 
-            temperature=0.2
+            temperature=0.1
         )
 
+
         result = response.choices[0].message.content
+        print("RAW AI RESPONSE:")
+        print(result)
 
-        print("Groq API request successful.")
+        # Check if AI returned a response
+        if not result:
 
-        return json.loads(result)
+            raise ValueError(
+                "AI returned an empty response."
+            )
+
+
+        # Convert AI response to JSON
+        analysis = extract_json(
+            result
+        )
+
+
+        # Ensure required keys exist
+        if "summary" not in analysis:
+
+            analysis["summary"] = (
+                "Code analysis completed."
+            )
+
+
+        if "issues" not in analysis:
+
+            analysis["issues"] = []
+
+
+        print(
+            "AI analysis completed successfully."
+        )
+
+
+        return analysis
+
 
     except json.JSONDecodeError as error:
 
@@ -114,13 +197,18 @@ Source Code:
             str(error)
         )
 
+
         return {
             "summary": (
-                "AI returned an invalid response format."
+                "The AI returned an invalid response format."
             ),
             "issues": [],
-            "error": str(error)
+            "error": (
+                "The AI response could not be processed. "
+                "Please try analyzing the code again."
+            )
         }
+
 
     except Exception as error:
 
@@ -129,6 +217,7 @@ Source Code:
             type(error).__name__,
             str(error)
         )
+
 
         return {
             "summary": "Analysis failed.",
