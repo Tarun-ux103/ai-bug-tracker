@@ -40,9 +40,7 @@ AI Analysis Results
             <h2>Analysis Summary</h2>
 
             <p>
-
                 {{ analysis.summary }}
-
             </p>
 
         </div>
@@ -69,7 +67,6 @@ AI Analysis Results
 
                 <div class="issue-header">
 
-
                     <div>
 
                         <span class="issue-type">
@@ -88,12 +85,13 @@ AI Analysis Results
                     </div>
 
 
-                    <span class="severity severity-{{ issue.severity|lower }}">
+                    <span
+                        class="severity severity-{{ issue.severity|lower }}"
+                    >
 
                         {{ issue.severity }}
 
                     </span>
-
 
                 </div>
 
@@ -101,7 +99,6 @@ AI Analysis Results
                 <!-- Description -->
 
                 <div class="issue-content">
-
 
                     <h4>
 
@@ -116,14 +113,12 @@ AI Analysis Results
 
                     </p>
 
-
                 </div>
 
 
                 <!-- Suggested Fix -->
 
                 <div class="issue-content">
-
 
                     <h4>
 
@@ -137,7 +132,6 @@ AI Analysis Results
                         ✦ {{ issue.suggested_fix }}
 
                     </div>
-
 
                 </div>
 
@@ -156,12 +150,29 @@ AI Analysis Results
                     >
 
 
+                        <!-- Connect Bug to Analysis Report -->
+
+                        {% if analysis_report %}
+
+                        <input
+                            type="hidden"
+                            name="analysis_report_id"
+                            value="{{ analysis_report.id }}"
+                        >
+
+                        {% endif %}
+
+
+                        <!-- Bug Title -->
+
                         <input
                             type="hidden"
                             name="title"
                             value="{{ issue.title }}"
                         >
 
+
+                        <!-- Issue Type -->
 
                         <input
                             type="hidden"
@@ -170,6 +181,8 @@ AI Analysis Results
                         >
 
 
+                        <!-- Severity -->
+
                         <input
                             type="hidden"
                             name="severity"
@@ -177,12 +190,16 @@ AI Analysis Results
                         >
 
 
+                        <!-- Description -->
+
                         <input
                             type="hidden"
                             name="description"
                             value="{{ issue.description }}"
                         >
 
+
+                        <!-- Suggested Fix -->
 
                         <input
                             type="hidden"

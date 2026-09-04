@@ -39,12 +39,14 @@ class Bug(db.Model):
         default=datetime.utcnow
     )
 
+    # Connect this bug to an analysis report
     analysis_report_id = db.Column(
         db.Integer,
         db.ForeignKey("analysis_reports.id"),
         nullable=True
     )
 
+    # Connect this bug to a user
     user_id = db.Column(
         db.Integer,
         db.ForeignKey("users.id"),
