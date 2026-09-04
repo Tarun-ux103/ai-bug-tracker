@@ -45,6 +45,7 @@ class AnalysisReport(db.Model):
 
     bugs = db.relationship(
         "Bug",
+        foreign_keys="Bug.analysis_report_id",
         backref="analysis_report",
         lazy=True
     )
