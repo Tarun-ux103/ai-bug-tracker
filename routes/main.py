@@ -14,7 +14,10 @@ from flask_login import (
 )
 
 from models import db
+
 from models.bug import Bug
+
+from models.analysis_report import AnalysisReport
 
 
 main = Blueprint(
@@ -35,6 +38,7 @@ def home():
 @login_required
 def dashboard():
 
+    # Get all bugs belonging to the current user
     bugs = Bug.query.filter_by(
         user_id=current_user.id
     ).order_by(
@@ -42,35 +46,133 @@ def dashboard():
     ).all()
 
 
+    # Get all AI analysis reports belonging to the current user
+    analysis_reports = AnalysisReport.query.filter_by(
+        user_id=current_user.id
+    ).order_by(
+        AnalysisReport.created_at.desc()
+    ).all()
+
+
+    # Total bugs
     total_bugs = Bug.query.filter_by(
         user_id=current_user.id
     ).count()
 
 
+    # Open bugs
     open_bugs = Bug.query.filter_by(
         user_id=current_user.id,
         status="Open"
     ).count()
 
 
+    # In Progress bugs
     in_progress_bugs = Bug.query.filter_by(
         user_id=current_user.id,
         status="In Progress"
     ).count()
 
 
+    # Resolved bugs
     resolved_bugs = Bug.query.filter_by(
         user_id=current_user.id,
         status="Resolved"
     ).count()
 
 
+    # Prepare grouped analysis data
+    grouped_reports = []
+
+
+    for report in analysis_reports:
+
+        # Get all saved bugs related to this report
+        report_bugs = Bug.query.filter_by(
+            analysis_report_id=report.id,
+            user_id=current_user.id
+        ).order_by(
+            Bug.created_at.desc()
+        ).all()
+
+
+        # Count issues based on the original AI analysis
+        issues = report.issues or []
+
+
+        critical_count = 0
+
+        high_count = 0
+
+        medium_count = 0
+
+        low_count = 0
+
+
+        for issue in issues:
+
+            severity = issue.get(
+                "severity",
+                ""
+            ).lower()
+
+
+            if severity == "critical":
+
+                critical_count += 1
+
+
+            elif severity == "high":
+
+                high_count += 1
+
+
+            elif severity == "medium":
+
+                medium_count += 1
+
+
+            elif severity == "low":
+
+                low_count += 1
+
+
+        grouped_reports.append({
+
+            "report": report,
+
+            "bugs": report_bugs,
+
+            # Total AI issues found
+            "issues_count": len(issues),
+
+            # Number of issues saved as bugs
+            "saved_bugs_count": len(report_bugs),
+
+            "critical_count": critical_count,
+
+            "high_count": high_count,
+
+            "medium_count": medium_count,
+
+            "low_count": low_count
+
+        })
+
+
     return render_template(
         "dashboard.html",
+
         bugs=bugs,
+
+        grouped_reports=grouped_reports,
+
         total_bugs=total_bugs,
+
         open_bugs=open_bugs,
+
         in_progress_bugs=in_progress_bugs,
+
         resolved_bugs=resolved_bugs
     )
 
@@ -98,9 +200,13 @@ def create_bug():
 
 
         new_bug = Bug(
+
             title=title,
+
             description=description,
+
             priority=priority,
+
             user_id=current_user.id
         )
 
@@ -157,13 +263,18 @@ def create_bug():
 def bug_details(bug_id):
 
     bug = Bug.query.filter_by(
+
         id=bug_id,
+
         user_id=current_user.id
+
     ).first_or_404()
 
 
     return render_template(
+
         "bug_details.html",
+
         bug=bug
     )
 
@@ -224,7 +335,9 @@ def edit_bug(bug_id):
 
 
     return render_template(
+
         "edit_bug.html",
+
         bug=bug
     )
 

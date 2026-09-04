@@ -120,6 +120,270 @@ Dashboard
 </div>
 
 
+<!-- Code Analysis Reports -->
+
+<div class="section-header">
+
+    <div>
+
+        <h3>
+            Code Analysis Reports
+        </h3>
+
+        <p>
+            Your analyzed source code and AI-detected issues.
+        </p>
+
+    </div>
+
+</div>
+
+
+{% if grouped_reports %}
+
+<div class="issues-container">
+
+
+    {% for group in grouped_reports %}
+
+    <div class="issue-card">
+
+
+        <!-- Analysis Report Information -->
+
+        <div class="issue-main">
+
+
+            <div class="issue-id">
+
+                AI
+
+            </div>
+
+
+            <div class="issue-info">
+
+
+                <h4>
+
+                    Analysis:
+                    {{ group.report.title }}
+
+                </h4>
+
+
+                <p>
+
+                    <strong>
+                        Language:
+                    </strong>
+
+                    {{ group.report.language }}
+
+                </p>
+
+
+                <p>
+
+                    <strong>
+                        Issues Found:
+                    </strong>
+
+                    {{ group.issues_count }}
+
+                </p>
+
+
+                <p>
+
+                    <strong>
+                        Saved as Bugs:
+                    </strong>
+
+                    {{ group.saved_bugs_count }}
+
+                </p>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- Severity Counts -->
+
+        <div class="issue-meta">
+
+
+            {% if group.critical_count > 0 %}
+
+            <span
+                class="priority priority-critical"
+            >
+
+                Critical:
+                {{ group.critical_count }}
+
+            </span>
+
+            {% endif %}
+
+
+            {% if group.high_count > 0 %}
+
+            <span
+                class="priority priority-high"
+            >
+
+                High:
+                {{ group.high_count }}
+
+            </span>
+
+            {% endif %}
+
+
+            {% if group.medium_count > 0 %}
+
+            <span
+                class="priority priority-medium"
+            >
+
+                Medium:
+                {{ group.medium_count }}
+
+            </span>
+
+            {% endif %}
+
+
+            {% if group.low_count > 0 %}
+
+            <span
+                class="priority priority-low"
+            >
+
+                Low:
+                {{ group.low_count }}
+
+            </span>
+
+            {% endif %}
+
+
+            <a
+                href="{{ url_for(
+                    'analyzer.analysis_results',
+                    report_id=group.report.id
+                ) }}"
+                class="view-button"
+            >
+
+                View Analysis →
+
+            </a>
+
+
+        </div>
+
+
+        <!-- Saved Bugs From This Analysis -->
+
+        {% if group.bugs %}
+
+        <div class="issue-info">
+
+            <h4>
+
+                Saved Bugs From This Analysis
+
+            </h4>
+
+
+            {% for bug in group.bugs %}
+
+            <p>
+
+                🐛
+
+                <a
+                    href="{{ url_for(
+                        'main.bug_details',
+                        bug_id=bug.id
+                    ) }}"
+                >
+
+                    {{ bug.title }}
+
+                </a>
+
+
+                —
+
+                <strong>
+                    {{ bug.priority }}
+                </strong>
+
+            </p>
+
+
+            {% endfor %}
+
+        </div>
+
+        {% endif %}
+
+
+    </div>
+
+    {% endfor %}
+
+
+</div>
+
+
+{% else %}
+
+
+<div class="empty-state">
+
+    <div class="empty-icon">
+
+        🤖
+
+    </div>
+
+
+    <h3>
+
+        No analysis reports yet
+
+    </h3>
+
+
+    <p>
+
+        Analyze source code using the AI Code Analyzer to see your reports here.
+
+    </p>
+
+
+    <a
+        href="{{ url_for('analyzer.analyze') }}"
+        class="btn-primary-custom"
+    >
+
+        Analyze Code
+
+    </a>
+
+
+</div>
+
+
+{% endif %}
+
+
 <!-- Recent Issues -->
 
 <div class="section-header">
@@ -143,9 +407,11 @@ Dashboard
 
 <div class="issues-container">
 
+
     {% for bug in bugs %}
 
     <div class="issue-card">
+
 
         <div class="issue-main">
 
@@ -164,8 +430,6 @@ Dashboard
             <div class="issue-info">
 
 
-                <!-- Clickable Bug Title -->
-
                 <h4>
 
                     <a
@@ -182,8 +446,6 @@ Dashboard
                 </h4>
 
 
-                <!-- Bug Description -->
-
                 <p>
 
                     {{ bug.description[:120] }}
@@ -196,6 +458,23 @@ Dashboard
 
                 </p>
 
+
+                {% if bug.analysis_report_id %}
+
+                <p>
+
+                    <strong>
+
+                        AI Analysis Report:
+                        #{{ bug.analysis_report_id }}
+
+                    </strong>
+
+                </p>
+
+                {% endif %}
+
+
             </div>
 
         </div>
@@ -206,8 +485,6 @@ Dashboard
         <div class="issue-meta">
 
 
-            <!-- Priority -->
-
             <span
                 class="priority priority-{{ bug.priority|lower }}"
             >
@@ -217,8 +494,6 @@ Dashboard
             </span>
 
 
-            <!-- Status -->
-
             <span
                 class="status status-{{ bug.status|lower|replace(' ', '-') }}"
             >
@@ -227,8 +502,6 @@ Dashboard
 
             </span>
 
-
-            <!-- View Details -->
 
             <a
                 href="{{ url_for(
@@ -242,11 +515,15 @@ Dashboard
 
             </a>
 
+
         </div>
+
 
     </div>
 
+
     {% endfor %}
+
 
 </div>
 
@@ -258,18 +535,25 @@ Dashboard
 
 <div class="empty-state">
 
+
     <div class="empty-icon">
+
         🐛
+
     </div>
 
 
     <h3>
+
         No issues yet
+
     </h3>
 
 
     <p>
+
         Start tracking your software issues by reporting your first bug.
+
     </p>
 
 
@@ -281,6 +565,7 @@ Dashboard
         + Report Your First Bug
 
     </a>
+
 
 </div>
 
