@@ -1754,3 +1754,717 @@ body {
     }
 
 }
+/* =========================================
+   MOBILE SIDEBAR SYSTEM
+========================================= */
+
+
+/* Hidden on desktop */
+
+.mobile-menu-button {
+    display: none;
+
+    border: none;
+
+    background: transparent;
+
+    font-size: 26px;
+
+    cursor: pointer;
+
+    color: var(--text);
+
+    padding: 8px;
+
+    line-height: 1;
+}
+
+
+.mobile-sidebar-header {
+    display: none;
+}
+
+
+.sidebar-close {
+    border: none;
+
+    background: transparent;
+
+    color: white;
+
+    font-size: 24px;
+
+    cursor: pointer;
+
+    padding: 5px;
+}
+
+
+.sidebar-overlay {
+    display: none;
+}
+
+
+/* Prevent horizontal scrolling */
+
+html,
+body {
+    width: 100%;
+
+    overflow-x: hidden;
+}
+
+
+img,
+video,
+iframe {
+    max-width: 100%;
+}
+
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 1000px) {
+
+
+    .sidebar {
+        width: 220px;
+    }
+
+
+    .main-content {
+        margin-left: 220px;
+    }
+
+
+    .stats-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .welcome-page {
+        grid-template-columns: 1fr;
+
+        gap: 40px;
+    }
+
+
+    .hero-content h1 {
+        font-size: 42px;
+    }
+
+
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 768px) {
+
+
+    body {
+        overflow-x: hidden;
+    }
+
+
+    /* Mobile Sidebar */
+
+    .sidebar {
+        display: flex;
+
+        position: fixed;
+
+        top: 0;
+
+        left: 0;
+
+        width: 280px;
+
+        height: 100vh;
+
+        z-index: 1050;
+
+        padding: 20px 18px;
+
+        transform:
+            translateX(-100%);
+
+        transition:
+            transform 0.3s ease;
+    }
+
+
+    .sidebar.sidebar-open {
+        transform:
+            translateX(0);
+    }
+
+
+    /* Overlay */
+
+    .sidebar-overlay {
+        position: fixed;
+
+        top: 0;
+
+        left: 0;
+
+        width: 100%;
+
+        height: 100%;
+
+        background:
+            rgba(0, 0, 0, 0.5);
+
+        z-index: 1040;
+
+        opacity: 0;
+
+        visibility: hidden;
+
+        transition:
+            opacity 0.3s ease,
+            visibility 0.3s ease;
+    }
+
+
+    .sidebar-overlay.active {
+        display: block;
+
+        opacity: 1;
+
+        visibility: visible;
+    }
+
+
+    /* Sidebar Header */
+
+    .mobile-sidebar-header {
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        margin-bottom: 25px;
+    }
+
+
+    .mobile-sidebar-header .brand {
+        padding: 0;
+    }
+
+
+    /* Hide duplicate desktop brand */
+
+    .desktop-brand {
+        display: none;
+    }
+
+
+    /* Main Content */
+
+    .main-content {
+        width: 100%;
+
+        margin-left: 0;
+
+        min-width: 0;
+    }
+
+
+    /* Topbar */
+
+    .topbar {
+        height: auto;
+
+        min-height: 80px;
+
+        padding: 15px 16px;
+
+        gap: 12px;
+
+        align-items: center;
+    }
+
+
+    .mobile-menu-button {
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        flex-shrink: 0;
+    }
+
+
+    .topbar-title {
+        flex: 1;
+
+        min-width: 0;
+    }
+
+
+    .topbar-label {
+        font-size: 8px;
+
+        letter-spacing: 1px;
+    }
+
+
+    .topbar h2 {
+        font-size: 18px;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+    }
+
+
+    .topbar-actions {
+        gap: 6px;
+
+        flex-shrink: 0;
+    }
+
+
+    .topbar-actions .btn {
+        font-size: 12px;
+
+        padding:
+            7px
+            10px;
+    }
+
+
+    .welcome-text {
+        display: none;
+    }
+
+
+    /* Page Content */
+
+    .page-content {
+        padding:
+            24px
+            16px;
+    }
+
+
+    /* Dashboard Header */
+
+    .dashboard-header {
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 18px;
+
+        margin-bottom: 25px;
+    }
+
+
+    .dashboard-header h1 {
+        font-size: 24px;
+    }
+
+
+    .dashboard-header p {
+        line-height: 1.5;
+    }
+
+
+    .dashboard-header .btn-primary-custom {
+        width: 100%;
+
+        justify-content: center;
+    }
+
+
+    /* Statistics */
+
+    .stats-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+
+        gap: 12px;
+
+        margin-bottom: 30px;
+    }
+
+
+    .stat-card {
+        padding: 15px;
+
+        gap: 10px;
+
+        min-width: 0;
+    }
+
+
+    .stat-icon {
+        width: 40px;
+
+        height: 40px;
+
+        min-width: 40px;
+
+        font-size: 17px;
+    }
+
+
+    .stat-card span {
+        font-size: 10px;
+    }
+
+
+    .stat-card h2 {
+        font-size: 21px;
+    }
+
+
+    /* Section Header */
+
+    .section-header {
+        margin-top: 30px;
+    }
+
+
+    .section-header h3 {
+        font-size: 18px;
+    }
+
+
+    /* Bug Cards */
+
+    .issue-card {
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 18px;
+
+        padding: 16px;
+    }
+
+
+    .issue-main {
+        width: 100%;
+
+        gap: 12px;
+    }
+
+
+    .issue-info {
+        min-width: 0;
+    }
+
+
+    .issue-info h4 {
+        font-size: 14px;
+
+        word-break: break-word;
+    }
+
+
+    .issue-info p {
+        font-size: 12px;
+
+        word-break: break-word;
+    }
+
+
+    .issue-meta {
+        width: 100%;
+
+        justify-content: flex-start;
+
+        flex-wrap: wrap;
+
+        gap: 8px;
+    }
+
+
+    .view-button {
+        margin-left: auto;
+    }
+
+
+    /* Analysis Reports */
+
+    .analysis-report-card {
+        flex-direction: column;
+
+        gap: 15px;
+
+        padding: 18px;
+    }
+
+
+    .analysis-report-content h3 {
+        font-size: 18px;
+
+        word-break: break-word;
+    }
+
+
+    .analysis-report-content p {
+        font-size: 14px;
+
+        word-break: break-word;
+    }
+
+
+    .analysis-report-icon {
+        width: 48px;
+
+        height: 48px;
+
+        min-width: 48px;
+    }
+
+
+    .severity-summary {
+        gap: 7px;
+    }
+
+
+    .severity-summary .severity {
+        font-size: 11px;
+
+        padding:
+            6px
+            10px;
+    }
+
+
+    .analysis-actions {
+        flex-direction: column;
+
+        width: 100%;
+    }
+
+
+    .btn-analysis-secondary,
+    .btn-analysis-primary {
+        width: 100%;
+    }
+
+
+    /* Empty State */
+
+    .empty-state {
+        padding:
+            45px
+            18px;
+    }
+
+
+    .empty-state h3 {
+        font-size: 19px;
+    }
+
+
+    /* Welcome Page */
+
+    .welcome-page {
+        min-height: auto;
+
+        display: block;
+    }
+
+
+    .hero-content h1 {
+        font-size: 34px;
+
+        line-height: 1.2;
+    }
+
+
+    .hero-buttons {
+        flex-direction: column;
+
+        width: 100%;
+    }
+
+
+    .hero-buttons a {
+        width: 100%;
+
+        justify-content: center;
+    }
+
+
+    .hero-card {
+        margin-top: 30px;
+
+        padding: 20px;
+    }
+
+
+    /* Authentication */
+
+    .auth-container {
+        min-height: auto;
+
+        padding:
+            20px
+            0;
+    }
+
+
+    .auth-card {
+        padding: 25px 18px;
+
+        border-radius: 14px;
+    }
+
+
+    /* AI Analyzer */
+
+    .analyzer-header h1 {
+        font-size: 24px;
+    }
+
+
+    .analyzer-container {
+        padding: 16px;
+
+        border-radius: 12px;
+    }
+
+
+    .code-input {
+        min-height: 300px;
+
+        padding: 14px;
+
+        font-size: 12px;
+    }
+
+
+    /* Analysis Results */
+
+    .analysis-summary {
+        padding: 18px;
+    }
+
+
+    .issue-result-header {
+        flex-direction: column;
+
+        gap: 12px;
+
+        padding: 18px;
+    }
+
+
+    .issue-result-content {
+        padding: 18px;
+    }
+
+
+    /* Bootstrap Cards */
+
+    .card-body {
+        padding: 20px !important;
+    }
+
+
+    /* Bug Details Buttons */
+
+    .d-flex.gap-2 {
+        flex-wrap: wrap;
+    }
+
+
+    .d-flex.gap-2 .btn,
+    .d-flex.gap-2 form {
+        width: 100%;
+    }
+
+
+    .d-flex.gap-2 form .btn {
+        width: 100%;
+    }
+
+
+}
+
+
+/* =========================================
+   SMALL MOBILE PHONES
+========================================= */
+
+@media (max-width: 480px) {
+
+
+    .topbar {
+        padding:
+            12px
+            14px;
+    }
+
+
+    .topbar-actions .btn {
+        font-size: 11px;
+
+        padding:
+            6px
+            8px;
+    }
+
+
+    .page-content {
+        padding:
+            20px
+            12px;
+    }
+
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .stat-card {
+        padding: 16px;
+    }
+
+
+    .dashboard-header h1 {
+        font-size: 22px;
+    }
+
+
+    .sidebar {
+        width: 85%;
+    }
+
+
+    .severity-summary .severity {
+        width: 100%;
+
+        text-align: center;
+    }
+
+
+    .analysis-actions a {
+        font-size: 13px;
+    }
+
+
+    .hero-content h1 {
+        font-size: 30px;
+    }
+
+
+}
