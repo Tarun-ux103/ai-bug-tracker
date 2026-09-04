@@ -6,6 +6,7 @@ from models import db
 
 from models.user import User
 from models.bug import Bug
+from models.analysis_report import AnalysisReport
 
 from routes.main import main
 from routes.auth import auth
@@ -19,30 +20,6 @@ def create_app():
 
     # Load configuration
     app.config.from_object(Config)
-
-
-    # Safe database diagnostics
-    database_uri = app.config.get(
-        "SQLALCHEMY_DATABASE_URI"
-    )
-
-    print(
-        "ACTIVE DATABASE CONFIGURED:",
-        bool(database_uri)
-    )
-
-
-    if database_uri:
-
-        # Do not print password
-        safe_database_uri = database_uri.split(
-            "@"
-        )[-1]
-
-        print(
-            "ACTIVE DATABASE:",
-            safe_database_uri
-        )
 
 
     # Initialize SQLAlchemy
